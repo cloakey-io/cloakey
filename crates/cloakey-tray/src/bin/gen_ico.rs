@@ -55,6 +55,37 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rgba = resized.to_rgba8();
     encoder.write_image(&rgba, 256, 256, image::ColorType::Rgba8.into())?;
 
-    println!("✓ All icon assets successfully generated under 'assets/'!");
+    // 4. Generate Rust array for TUI display (34x14 characters target)
+    println!("Generating Rust array logo for TUI (crates/cloakey-cli/src/logo_data.rs)...");
+    let tui_w = 34;
+    let tui_h = 14;
+    let tui_img = img.resize(tui_w, tui_h, image::imageops::FilterType::Lanczos3);
+    let (actual_w, actual_h) = tui_img.dimensions();
+    let tui_rgba = tui_img.to_rgba8();
+    
+    let mut rust_code = String::new();
+    rust_code.push_str("/// Auto-generated logo pixel data from CloaKey logo no bg.png\n");
+    rust_code.push_str(&format!("pub const LOGO_WIDTH: usize = {};\n", actual_w));
+    rust_code.push_str(&format!("pub const LOGO_HEIGHT: usize = {};\n\n", actual_h));
+    rust_code.push_str("pub const LOGO_PIXELS: [[Option<(u8, u8, u8)>; LOGO_WIDTH]; LOGO_HEIGHT] = [\n");
+    
+    for y in 0..actual_h {
+        rust_code.push_str("    [\n        ");
+        for x in 0..actual_w {
+            let pixel = tui_rgba.get_pixel(x, y);
+            let alpha = pixel[3];
+            if alpha < 35 {
+                rust_code.push_str("None, ");
+            } else {
+                rust_code.push_str(&format!("Some(({}, {}, {})), ", pixel[0], pixel[1], pixel[2]));
+            }
+        }
+        rust_code.push_str("\n    ],\n");
+    }
+    rust_code.push_str("];\n");
+    
+    std::fs::write("crates/cloakey-cli/src/logo_data.rs", rust_code)?;
+
+    println!("✓ All icon and TUI logo assets successfully generated!");
     Ok(())
 }

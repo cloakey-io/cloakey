@@ -12,6 +12,58 @@ use ratatui::{
 };
 
 use cloakey_core::LockState;
+use crate::logo_data::{LOGO_WIDTH, LOGO_HEIGHT, LOGO_PIXELS};
+
+/// Generate the terminal colored logo paragraph using half-blocks.
+fn get_logo_paragraph() -> Paragraph<'static> {
+    let mut lines = Vec::new();
+
+    // Since we use half-blocks, we process two rows at a time
+    for y in (0..LOGO_HEIGHT).step_by(2) {
+        let mut spans = Vec::new();
+        // Add left margin padding for alignment
+        spans.push(Span::raw("  "));
+        
+        for x in 0..LOGO_WIDTH {
+            let top_pixel = LOGO_PIXELS[y][x];
+            // If y+1 is within bounds, get bottom pixel, else None
+            let bottom_pixel = if y + 1 < LOGO_HEIGHT {
+                LOGO_PIXELS[y + 1][x]
+            } else {
+                None
+            };
+
+            match (top_pixel, bottom_pixel) {
+                (None, None) => {
+                    spans.push(Span::raw(" "));
+                }
+                (Some((r, g, b)), None) => {
+                    spans.push(Span::styled(
+                        "▀",
+                        Style::default().fg(Color::Rgb(r, g, b)),
+                    ));
+                }
+                (None, Some((r, g, b))) => {
+                    spans.push(Span::styled(
+                        "▄",
+                        Style::default().fg(Color::Rgb(r, g, b)),
+                    ));
+                }
+                (Some((r1, g1, b1)), Some((r2, g2, b2))) => {
+                    spans.push(Span::styled(
+                        "▄",
+                        Style::default()
+                            .fg(Color::Rgb(r2, g2, b2))
+                            .bg(Color::Rgb(r1, g1, b1)),
+                    ));
+                }
+            }
+        }
+        lines.push(Line::from(spans));
+    }
+
+    Paragraph::new(lines)
+}
 
 /// The main menu items.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -123,43 +175,56 @@ pub fn draw_main_menu(
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(7),  // Header / logo area
+            Constraint::Length(9),  // Header / logo area (9 rows total, 7 rows inner)
             Constraint::Min(1),     // Menu items
             Constraint::Length(4),  // Status bar
         ])
         .split(area);
 
-    // --- Header ---
+    // --- Header Border ---
     let header_block = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Double)
         .border_style(Style::default().fg(Color::Cyan))
         .style(Style::default().bg(Color::Black));
+    frame.render_widget(header_block, chunks[0]);
 
+    // --- Split Header Inner Area into Logo (Left) and Text (Right) ---
+    let inner_header_area = chunks[0].inner(ratatui::layout::Margin { horizontal: 1, vertical: 1 });
+    let header_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Length(18), // Logo (14 columns + margins)
+            Constraint::Min(1),     // Title and info
+        ])
+        .split(inner_header_area);
+
+    // Render Logo Column
+    let logo = get_logo_paragraph();
+    frame.render_widget(logo, header_chunks[0]);
+
+    // Render Info Column
     let header_text = vec![
         Line::from(Span::styled(
-            "  🔑  CloaKey",
+            "🔑  CloaKey",
             Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(Modifier::BOLD),
         )),
         Line::from(Span::styled(
-            format!("  v{}  ·  Protect the workflow. Don't stop the workflow.", version),
+            format!("v{}  ·  Protect the workflow. Don't stop the workflow.", version),
             Style::default().fg(Color::DarkGray),
         )),
         Line::from(""),
         Line::from(vec![
-            Span::styled("  Emergency: ", Style::default().fg(Color::Yellow)),
+            Span::styled("Emergency: ", Style::default().fg(Color::Yellow)),
             Span::styled("CTRL + ALT + SHIFT (hold 2s)", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
             Span::styled("  ·  Uncloak: ", Style::default().fg(Color::Cyan)),
             Span::styled("CTRL + ALT + U", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
         ]),
     ];
-
-    let header = Paragraph::new(header_text)
-        .block(header_block)
-        .alignment(Alignment::Left);
-    frame.render_widget(header, chunks[0]);
+    let header_info = Paragraph::new(header_text).alignment(Alignment::Left);
+    frame.render_widget(header_info, header_chunks[1]);
 
     // --- Menu Items ---
     let menu_block = Block::default()

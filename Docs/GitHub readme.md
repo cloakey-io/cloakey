@@ -1,5 +1,9 @@
 # CloaKey
 
+<p align="center">
+  <img src="../CloaKey logo no bg.png" alt="CloaKey Logo" width="200"/>
+</p>
+
 ### Protect the workflow. Don't stop the workflow.
 
 CloaKey is a lightweight desktop workflow protection utility that temporarily suppresses keyboard and mouse interaction while allowing applications, AI agents, downloads, videos, terminals, and other processes to continue running normally.

@@ -1,169 +1,449 @@
-<p align="center">
-  <img src="assets/cloakey_banner.png" alt="CloaKey Logo" width="500">
-</p>
+# CloaKey
 
 <p align="center">
-  <b>Protect the workflow. Don't stop the workflow.</b>
+  <img src="CloaKey logo no bg.png" alt="CloaKey Logo" width="200"/>
 </p>
 
-<p align="center">
-  <a href="https://github.com/cloakey/cloakey/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/cloakey/cloakey/ci.yml?branch=main&style=flat-square&label=build" alt="Build Status"></a>
-  <a href="https://crates.io/crates/cloakey"><img src="https://img.shields.io/crates/v/cloakey.svg?style=flat-square" alt="Crates.io"></a>
-  <a href="https://github.com/cloakey/cloakey/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSL%201.1-blue.svg?style=flat-square" alt="License"></a>
-  <a href="#supported-platforms"><img src="https://img.shields.io/badge/platform-windows%20%7C%20macos%20(soon)%20%7C%20linux%20(soon)-lightgrey.svg?style=flat-square" alt="Platforms"></a>
-  <a href="https://github.com/cloakey/cloakey/stargazers"><img src="https://img.shields.io/github/stars/cloakey/cloakey.svg?style=flat-square&color=yellow" alt="GitHub stars"></a>
-</p>
+### Protect the workflow. Don't stop the workflow.
+
+CloaKey is a lightweight desktop workflow protection utility that temporarily suppresses keyboard and mouse interaction while allowing applications, AI agents, downloads, videos, terminals, and other processes to continue running normally.
+
+Unlike traditional screen locking systems, CloaKey keeps your desktop visible and active while protecting it from accidental interaction.
 
 ---
 
-## 🔒 What is CloaKey?
+## Why CloaKey?
 
-**CloaKey** (pronounced *Cloak + Key*) is a lightweight desktop workflow protection utility that temporarily suppresses keyboard and mouse interaction while allowing applications, AI agents, active terminals, downloads, rendering jobs, videos, and background processes to continue running normally.
+Modern operating systems provide two options:
 
-Unlike standard system locking (e.g., `Win + L` in Windows), which turns off displays and hides active programs, **CloaKey keeps your screens visible and active** but insulates them from accidental physical interaction.
+### Fully Interactive
 
----
+Everything works.
 
-## 💡 Why CloaKey?
+Everything can be accidentally modified.
 
-Traditional operating systems offer only two options:
-1. **Fully Interactive (High Risk):** Everything is active. A toddler, pet, or keyboard mishap can instantly delete code, kill terminal processes, or ruin presentations.
-2. **Fully Locked (Interrupted Workflow):** The screen goes black or displays a login prompt. You lose visual status checks, AI agents might pause, and active window visibility is lost.
+### Fully Locked
 
-### The CloaKey Third Option: **Protected Visibility**
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          OPERATING SYSTEM                              │
-├──────────────────────────┬─────────────────────────────────────────────┤
-│   Traditional Lock Screen│  🔒 Screen Off / Suspended Tasks / Invisible │
-├──────────────────────────┼─────────────────────────────────────────────┤
-│   CloaKey Protected Mode │  👁️ Screen Visible / Running Tasks / Blocked │
-└──────────────────────────┴─────────────────────────────────────────────┘
-```
+Everything disappears behind a lock screen.
 
-### 🐈 Common Scenarios
-*   **Pet Interference:** Your cat decides to take a nap on the keyboard during an active build.
-*   **Toddler Shield:** A curious child reaches for the glowing keyboard keys.
-*   **AI Coding Sessions:** You are running autonomous coding agents (like Claude Code or Devin) and want to observe without accidentally typing or clicking.
-*   **Terminal & Scripts:** Protect a 2-hour compiler execution or database migration from accidental `Ctrl+C`.
-*   **Presentation Protection:** Lock input while displaying slides or live dashboards to prevent slide skipping during discussions.
+Workflow visibility is lost.
 
 ---
 
-## ⚡ Quick Start
+CloaKey provides a third option:
 
-### 1. Launch Interactive Menu
-Run the primary command:
+### Protected
+
+Your workflow remains visible.
+
+Your applications continue running.
+
+Accidental interaction is blocked.
+
+---
+
+## Common Scenarios
+
+### Developers
+
+Prevent accidental:
+
+* Ctrl + Z
+* Ctrl + S
+* Terminal interruption
+* IDE interaction
+
+### AI Workflows
+
+Protect:
+
+* AI coding sessions
+* Long-running agents
+* Repository-wide operations
+* Automated tasks
+
+### Pet Owners
+
+Protect against:
+
+* Cats walking on keyboards
+* Dogs bumping mice
+* Curious pets
+
+### Parents
+
+Prevent accidental interaction from:
+
+* Toddlers
+* Children
+* Visitors
+
+### Presentations
+
+Avoid:
+
+* Accidental shortcuts
+* Window switching
+* Presentation disruptions
+
+---
+
+# Features
+
+## Keyboard Lock
+
+Disable keyboard input while keeping the mouse active.
+
+---
+
+## Mouse Lock
+
+Disable mouse interaction while keeping the keyboard active.
+
+---
+
+## Full Protection
+
+Disable keyboard and mouse simultaneously.
+
+---
+
+## Ghost Mode
+
+Allow mouse movement.
+
+Block:
+
+* Clicks
+* Dragging
+* Keyboard input
+
+Perfect for safely observing an active workflow.
+
+---
+
+## Timed Protection
+
+Automatically unlock after a specified duration.
+
+Examples:
+
 ```bash
-cloak
+cloak timer 30
+cloak timer 5m
+cloak timer 1h
 ```
-You will be greeted by a terminal user interface (TUI) powered by `ratatui`:
-```text
-=========================================
-           CloaKey v1.0
-    Workflow Protection System
-=========================================
-
-1. Lock Keyboard           [Mouse Active]
-2. Lock Mouse              [Keyboard Active]
-3. Lock Keyboard & Mouse   [Full Protection]
-4. Ghost Mode              [Move cursor, No clicks]
-5. Timed Lock              [Auto-unlock after time]
-6. Settings                [Shortcuts, Overlays]
-7. Help                    [List commands]
-8. About                   [Version & license]
-
-Q. Exit
-
-Select option: 
-```
-
-### 2. Direct CLI Invocation
-For power users, script execution, or quick activation, bypass the menu:
-*   **Lock Keyboard only:** `cloak keyboard`
-*   **Lock Mouse only:** `cloak mouse`
-*   **Lock Both:** `cloak lock`
-*   **Ghost Mode:** `cloak ghost` (Allows mouse movement but blocks clicks and keyboard input)
-*   **Timed Lock:** `cloak timer 5m` (Protects your system for 5 minutes, then automatically unlocks)
-
-### 3. Emergency Recovery
-Every protection mode includes a **guaranteed physical override sequence** that cannot be disabled. If you ever need to restore input immediately:
-```text
-Hold CTRL + ALT + SHIFT for 2 Seconds
-```
-The overlay will display a countdown, and your input will be fully restored.
 
 ---
 
-## 📦 Installation
+## Emergency Unlock
 
-### Windows (Primary)
-Install via Windows Package Manager (Winget):
-```powershell
+Every protection mode includes a guaranteed recovery mechanism.
+
+Default:
+
+```text
+CTRL + ALT + SHIFT
+(Hold 2 Seconds)
+```
+
+User recovery always takes priority.
+
+---
+
+# Installation
+
+## Windows
+
+```bash
 winget install cloakey
 ```
 
-### Rust Developers
-Install directly via Cargo:
+---
+
+## Rust / Cargo
+
 ```bash
 cargo install cloakey
 ```
 
-### macOS & Linux
-*Platform support is currently in development.* You can track or contribute to our Unix input-hooks backend in [ROADMAP.md](ROADMAP.md).
+---
+
+## macOS
+
+```bash
+brew install cloakey
+```
+
+(Coming Soon)
 
 ---
 
-## 🛡️ Designed for Absolute Trust
+## Linux
 
-Because CloaKey operates at the operating system hook level to intercept keyboard and mouse events, **trust and security are our highest priorities**.
-
-*   **No Telemetry & No Analytics:** CloaKey does not track, record, or log any analytics data in its community edition.
-*   **Zero Keylogger Guarantee:** CloaKey intercepts keys to block them. It **never** writes keys to disk, records passwords, or transmits input data.
-*   **Local-First & Offline:** The utility operates completely offline. No network permission is required.
-*   **Verified Security Workflows:** We run automated dependency audits (`cargo-audit`) and static analysis (`clippy`) on every build to prevent supply chain vulnerabilities.
+Package support planned.
 
 ---
 
-## 🏎️ Performance Goals
+# Quick Start
 
-CloaKey is written in pure Rust for low-overhead, systems-level execution.
+Launch interactive mode:
 
-| Metric | Target | Status |
-| :--- | :--- | :--- |
-| **Startup Time** | `< 1 second` | Validated (Instant) |
-| **Memory Usage** | `< 50 MB` | Validated (average ~18MB) |
-| **Idle CPU Usage** | `< 1%` | Validated (0.01% on Windows 11) |
-| **Input Latency** | `< 50ms` | Interception occurs instantly at the OS hook layer |
-| **Unlock Response** | `< 100ms` | Instant upon release or shortcut activation |
+```bash
+cloak
+```
 
----
+You will see:
 
-## 🗺️ Roadmap Overview
+```text
+=================================
+CloaKey
+Workflow Protection System
+=================================
 
-*   **V1 (Current):** Core Windows hooks, CLI/TUI interactive mode, basic overlays, timed locks, registry startup configuration.
-*   **V2:** Pet Mode (bubble-pop UI for cats), Floating Key Visualizer, Input Absorption Layer (shows keys bounce off screen).
-*   **V3:** macOS & Linux native hooks, Window-level locking, AI workflow daemon API.
-*   **V4:** Enterprise dashboard, centralized policy distribution, remote device lock administration.
+1. Lock Keyboard
+2. Lock Mouse
+3. Lock Keyboard & Mouse
+4. Ghost Mode
+5. Timed Lock
+6. Settings
+7. Help
+8. About
 
-For the full breakdown of milestones, read the [ROADMAP.md](ROADMAP.md).
-
----
-
-## 📄 Licensing & Contribution
-
-CloaKey is licensed under the **Business Source License 1.1 (BSL 1.1)**, transitioning to the OSI-approved **Apache License 2.0** on **June 12, 2029**. 
-
-*   **For Users & Developers:** You are free to copy, modify, distribute, and run CloaKey for personal or internal commercial use.
-*   **For Competitors:** You may not offer CloaKey as a managed service or incorporate it into a proprietary competing developer utility product.
-
-See [LICENSE](LICENSE) for the full text.
-
-We welcome community contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) to set up your local development environment and learn how to submit a pull request.
+Q. Exit
+```
 
 ---
 
-<p align="center">
-  <b>Protect the workflow. Don't stop the workflow.</b><br>
-  Made with 🦀 for developers, parents, and pet owners.
-</p>
+# Direct Commands
+
+## Lock Keyboard
+
+```bash
+cloak keyboard
+```
+
+---
+
+## Lock Mouse
+
+```bash
+cloak mouse
+```
+
+---
+
+## Lock Everything
+
+```bash
+cloak lock
+```
+
+---
+
+## Ghost Mode
+
+```bash
+cloak ghost
+```
+
+---
+
+## Timed Lock
+
+```bash
+cloak timer 5m
+```
+
+---
+
+## Status
+
+```bash
+cloak status
+```
+
+---
+
+## Unlock
+
+```bash
+cloak unlock
+```
+
+---
+
+# Philosophy
+
+CloaKey is built around one principle:
+
+> Protect the workflow. Do not stop the workflow.
+
+Applications continue running.
+
+Examples:
+
+* VS Code
+* Cursor
+* Claude Code
+* Browsers
+* Downloads
+* Render jobs
+* Videos
+* Terminal processes
+
+Only interaction changes.
+
+---
+
+# Security & Privacy
+
+CloaKey is not:
+
+* Spyware
+* Monitoring software
+* Surveillance software
+* A keylogger
+
+CloaKey does not:
+
+* Record keystrokes
+* Save passwords
+* Upload input data
+* Collect clipboard contents
+* Track user behavior
+
+Input may be blocked.
+
+Input is never recorded.
+
+---
+
+# Performance Goals
+
+Target Metrics:
+
+| Metric         | Goal       |
+| -------------- | ---------- |
+| Startup Time   | < 1 second |
+| Idle CPU       | < 1%       |
+| Memory Usage   | < 50MB     |
+| Unlock Latency | < 100ms    |
+| Input Latency  | < 50ms     |
+
+---
+
+# Roadmap
+
+## V1
+
+* Keyboard Lock
+* Mouse Lock
+* Full Lock
+* Ghost Mode
+* Timed Lock
+* CLI Interface
+
+---
+
+## V2
+
+* Pet Mode
+* Child Mode
+* Floating Key Visualizer
+* Input Absorption Layer
+* Interactive Overlays
+* Micro Games
+
+---
+
+## V3
+
+* Desktop Locking
+* Window Locking
+* Profiles
+* Automation Rules
+* AI Workflow Protection
+
+---
+
+## V4
+
+* Enterprise Dashboard
+* Team Policies
+* Remote Administration
+* Audit Logging
+
+---
+
+# Building From Source
+
+Clone repository:
+
+```bash
+git clone https://github.com/cloakey/cloakey.git
+```
+
+Enter project:
+
+```bash
+cd cloakey
+```
+
+Build:
+
+```bash
+cargo build --release
+```
+
+Run:
+
+```bash
+cargo run
+```
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+Areas needing help:
+
+* Rust Development
+* Windows APIs
+* Input Handling
+* Testing
+* Documentation
+* Accessibility
+* Cross-Platform Support
+
+Please read CONTRIBUTING.md before submitting a pull request.
+
+---
+
+# License
+
+MIT License
+
+See LICENSE for details.
+
+---
+
+# Inspiration
+
+A simple observation:
+
+Sometimes the biggest threat to an active workflow is not malware.
+
+It's a cat sitting on a keyboard.
+
+---
+
+# Final Principle
+
+The future of computing is not only about making machines smarter.
+
+It's also about protecting workflows from unintended interaction.
+
+CloaKey exists to provide that protection.
