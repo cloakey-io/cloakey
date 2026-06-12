@@ -25,9 +25,7 @@ use crate::{
     error::CliError,
     lock_screen::draw_lock_screen,
     menu::{draw_about_screen, draw_help_screen, draw_main_menu, MenuItem},
-    settings_menu::{
-        cycle_overlay_mode, draw_settings_menu, SettingsItem,
-    },
+    settings_menu::{cycle_overlay_mode, draw_settings_menu, SettingsItem},
     startup::set_startup_enabled,
     tui::TerminalGuard,
 };
@@ -65,8 +63,7 @@ impl App {
         let config = config_manager.load()?;
 
         let overlay_mode = config.general.overlay.clone();
-        let safety = SafetyController::initialize()
-            .map_err(|e| CliError::Other(e.to_string()))?;
+        let safety = SafetyController::initialize().map_err(|e| CliError::Other(e.to_string()))?;
 
         // Start the deadman switch background thread
         safety.start_deadman_switch(Duration::from_secs(5));
@@ -94,8 +91,7 @@ impl App {
 
     /// Run the interactive TUI event loop.
     pub fn run_interactive(&mut self) -> Result<(), CliError> {
-        let mut tui = TerminalGuard::new()
-            .map_err(|e| CliError::Terminal(e.to_string()))?;
+        let mut tui = TerminalGuard::new().map_err(|e| CliError::Terminal(e.to_string()))?;
 
         while self.running {
             // --- Check for safety signals (emergency unlock, deadman, shutdown) ---
@@ -116,42 +112,42 @@ impl App {
             let settings_state = &mut self.settings_state;
             let timed_input = self.timed_lock_input.clone();
 
-            tui.terminal().draw(|frame| {
-                match screen {
-                    Screen::MainMenu => {
-                        draw_main_menu(frame, menu_state, session_ref.lock_state(), version);
+            tui.terminal()
+                .draw(|frame| {
+                    match screen {
+                        Screen::MainMenu => {
+                            draw_main_menu(frame, menu_state, session_ref.lock_state(), version);
+                        }
+                        Screen::LockActive => {
+                            let timer_display = session_ref.timer().map(|t| t.remaining_display());
+                            let elapsed = session_ref
+                                .locked_at()
+                                .map(|at| at.elapsed().as_secs())
+                                .unwrap_or(0);
+                            draw_lock_screen(
+                                frame,
+                                session_ref.lock_state(),
+                                session_ref.lock_mode(),
+                                timer_display.as_deref(),
+                                elapsed,
+                            );
+                        }
+                        Screen::Settings => {
+                            draw_settings_menu(frame, config_ref, settings_state);
+                        }
+                        Screen::Help => {
+                            draw_help_screen(frame);
+                        }
+                        Screen::About => {
+                            draw_about_screen(frame, version);
+                        }
+                        Screen::TimedLockPrompt => {
+                            // Simple timed lock input prompt
+                            draw_timed_prompt(frame, &timed_input);
+                        }
                     }
-                    Screen::LockActive => {
-                        let timer_display = session_ref
-                            .timer()
-                            .map(|t| t.remaining_display());
-                        let elapsed = session_ref
-                            .locked_at()
-                            .map(|at| at.elapsed().as_secs())
-                            .unwrap_or(0);
-                        draw_lock_screen(
-                            frame,
-                            session_ref.lock_state(),
-                            session_ref.lock_mode(),
-                            timer_display.as_deref(),
-                            elapsed,
-                        );
-                    }
-                    Screen::Settings => {
-                        draw_settings_menu(frame, config_ref, settings_state);
-                    }
-                    Screen::Help => {
-                        draw_help_screen(frame);
-                    }
-                    Screen::About => {
-                        draw_about_screen(frame, version);
-                    }
-                    Screen::TimedLockPrompt => {
-                        // Simple timed lock input prompt
-                        draw_timed_prompt(frame, &timed_input);
-                    }
-                }
-            }).map_err(|e| CliError::Terminal(e.to_string()))?;
+                })
+                .map_err(|e| CliError::Terminal(e.to_string()))?;
 
             // --- Handle input events ---
             if event::poll(Duration::from_millis(100))
@@ -346,12 +342,13 @@ impl App {
             }
             SettingsItem::UnlockHoldDuration => {
                 // Cycle through common values: 1000ms, 1500ms, 2000ms, 3000ms
-                self.config.shortcuts.emergency_unlock_hold_ms = match self.config.shortcuts.emergency_unlock_hold_ms {
-                    1000 => 1500,
-                    1500 => 2000,
-                    2000 => 3000,
-                    _ => 1000,
-                };
+                self.config.shortcuts.emergency_unlock_hold_ms =
+                    match self.config.shortcuts.emergency_unlock_hold_ms {
+                        1000 => 1500,
+                        1500 => 2000,
+                        2000 => 3000,
+                        _ => 1000,
+                    };
                 self.config_manager.save(&self.config)?;
             }
             SettingsItem::RunOnStartup => {
@@ -398,7 +395,11 @@ impl App {
         // Show overlay
         let timer_display = self.session.timer().map(|t| t.remaining_display());
         self.overlay
-            .show(&state, timer_display.as_deref(), self.safety.signal_sender())
+            .show(
+                &state,
+                timer_display.as_deref(),
+                self.safety.signal_sender(),
+            )
             .map_err(|e| CliError::Overlay(e))?;
 
         // Minimize the console window while locked
@@ -430,7 +431,11 @@ impl App {
 
         let timer_display = self.session.timer().map(|t| t.remaining_display());
         self.overlay
-            .show(&LockState::TimedLock, timer_display.as_deref(), self.safety.signal_sender())
+            .show(
+                &LockState::TimedLock,
+                timer_display.as_deref(),
+                self.safety.signal_sender(),
+            )
             .map_err(|e| CliError::Overlay(e))?;
 
         self.screen = Screen::LockActive;
@@ -508,8 +513,7 @@ impl App {
         let shortcuts = &self.config.shortcuts;
         println!(
             "Unlock: {} (hold {}ms)",
-            shortcuts.emergency_unlock,
-            shortcuts.emergency_unlock_hold_ms
+            shortcuts.emergency_unlock, shortcuts.emergency_unlock_hold_ms
         );
     }
 
@@ -566,21 +570,41 @@ fn draw_timed_prompt(frame: &mut ratatui::Frame, input: &str) {
     let area = frame.area();
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(40), Constraint::Length(8), Constraint::Min(0)])
+        .constraints([
+            Constraint::Percentage(40),
+            Constraint::Length(8),
+            Constraint::Min(0),
+        ])
         .split(area);
 
     let prompt = Paragraph::new(vec![
-        Line::from(Span::styled("Enter lock duration:", Style::default().fg(Color::White).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "Enter lock duration:",
+            Style::default()
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from(""),
-        Line::from(Span::styled("  Examples: 60  |  5m  |  1h", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled(
+            "  Examples: 60  |  5m  |  1h",
+            Style::default().fg(Color::DarkGray),
+        )),
         Line::from(""),
         Line::from(vec![
             Span::styled("  > ", Style::default().fg(Color::Cyan)),
-            Span::styled(input, Style::default().fg(Color::White).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                input,
+                Style::default()
+                    .fg(Color::White)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled("█", Style::default().fg(Color::Cyan)), // cursor
         ]),
         Line::from(""),
-        Line::from(Span::styled("  Enter to confirm · Esc to cancel", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled(
+            "  Enter to confirm · Esc to cancel",
+            Style::default().fg(Color::DarkGray),
+        )),
     ])
     .block(
         Block::default()

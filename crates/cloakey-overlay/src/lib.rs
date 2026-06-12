@@ -10,8 +10,8 @@ mod window;
 
 use cloakey_core::{LockState, SafetySignal};
 use cloakey_settings::OverlayMode;
-pub use error::OverlayError;
 use crossbeam_channel::Sender;
+pub use error::OverlayError;
 
 /// Manages the CloaKey status overlay window.
 ///

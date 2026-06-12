@@ -1,8 +1,8 @@
+use anyhow::{anyhow, Result};
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use anyhow::{anyhow, Result};
 
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -24,8 +24,7 @@ fn get_install_dir() -> Result<PathBuf> {
 }
 
 fn get_start_menu_shortcut_path() -> Result<PathBuf> {
-    let app_data = dirs::data_dir()
-        .ok_or_else(|| anyhow!("Failed to locate AppData directory"))?;
+    let app_data = dirs::data_dir().ok_or_else(|| anyhow!("Failed to locate AppData directory"))?;
     Ok(app_data
         .join("Microsoft")
         .join("Windows")
@@ -65,7 +64,8 @@ fn run_install() -> Result<()> {
     println!("Installing CloaKey...");
 
     let current_exe = env::current_exe()?;
-    let current_dir = current_exe.parent()
+    let current_dir = current_exe
+        .parent()
         .ok_or_else(|| anyhow!("Failed to get current directory"))?;
 
     // Find the executables
@@ -112,7 +112,10 @@ fn run_install() -> Result<()> {
         }
     }
     if !cloakey_exe.exists() {
-        let release_cloakey = current_dir.join("target").join("release").join("cloakey.exe");
+        let release_cloakey = current_dir
+            .join("target")
+            .join("release")
+            .join("cloakey.exe");
         if release_cloakey.exists() {
             cloakey_exe = release_cloakey;
         } else {
@@ -123,11 +126,17 @@ fn run_install() -> Result<()> {
         }
     }
     if !cloak_tray_exe.exists() {
-        let release_tray = current_dir.join("target").join("release").join("cloak-tray.exe");
+        let release_tray = current_dir
+            .join("target")
+            .join("release")
+            .join("cloak-tray.exe");
         if release_tray.exists() {
             cloak_tray_exe = release_tray;
         } else {
-            let debug_tray = current_dir.join("target").join("debug").join("cloak-tray.exe");
+            let debug_tray = current_dir
+                .join("target")
+                .join("debug")
+                .join("cloak-tray.exe");
             if debug_tray.exists() {
                 cloak_tray_exe = debug_tray;
             }
@@ -280,10 +289,7 @@ fn run_uninstall() -> Result<()> {
             current_exe.to_str().unwrap(),
             install_dir.to_str().unwrap()
         );
-        Command::new("cmd")
-            .arg("/c")
-            .arg(cleanup_cmd)
-            .spawn()?;
+        Command::new("cmd").arg("/c").arg(cleanup_cmd).spawn()?;
     }
 
     println!("\n✓ CloaKey has been successfully uninstalled.");

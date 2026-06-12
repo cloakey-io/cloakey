@@ -29,7 +29,7 @@ use error::CliError;
 
 fn main() {
     let cli = Cli::parse();
-    
+
     // Set up logging: file logger for interactive mode, stderr logger for direct commands
     init_logging(cli.command.is_none());
 
@@ -44,7 +44,7 @@ fn init_logging(interactive: bool) {
         if let Some(config_dir) = dirs::config_dir().map(|base| base.join("CloaKey")) {
             let _ = std::fs::create_dir_all(&config_dir);
             let log_file_path = config_dir.join("cloakey.log");
-            
+
             if let Ok(file) = OpenOptions::new()
                 .create(true)
                 .write(true)
@@ -54,10 +54,10 @@ fn init_logging(interactive: bool) {
                 let file_layer = tracing_subscriber::fmt::layer()
                     .with_writer(file)
                     .with_ansi(false);
-                
+
                 let filter = tracing_subscriber::EnvFilter::from_default_env()
                     .add_directive("cloakey=info".parse().unwrap());
-                
+
                 let _ = tracing_subscriber::registry()
                     .with(filter)
                     .with(file_layer)
@@ -79,7 +79,6 @@ fn init_logging(interactive: bool) {
 use std::fs::OpenOptions;
 
 fn run(cli: Cli) -> Result<(), CliError> {
-
     match cli.command {
         // No subcommand → interactive menu
         None => {
@@ -142,7 +141,7 @@ fn run(cli: Cli) -> Result<(), CliError> {
             let mut app = App::new()?;
             // Jump straight to settings screen
             app.run_interactive()?; // Will show settings after one cycle if needed
-            // For direct command: show a simple settings summary
+                                    // For direct command: show a simple settings summary
         }
 
         Some(Command::Startup) => {
@@ -169,8 +168,7 @@ fn run(cli: Cli) -> Result<(), CliError> {
 ///
 /// Used for direct command mode (e.g., `cloak keyboard`).
 fn run_lock_until_unlock(app: &mut App) -> Result<(), CliError> {
-    let mut tui = tui::TerminalGuard::new()
-        .map_err(|e| CliError::Terminal(e.to_string()))?;
+    let mut tui = tui::TerminalGuard::new().map_err(|e| CliError::Terminal(e.to_string()))?;
 
     loop {
         // Check for safety signals (emergency unlock, deadman, shutdown)
@@ -200,29 +198,29 @@ fn run_lock_until_unlock(app: &mut App) -> Result<(), CliError> {
         let state = app.session_ref().lock_state().clone();
         let mode = app.session_ref().lock_mode().clone();
         let timer_str = app.session_ref().timer().map(|t| t.remaining_display());
-        let elapsed = app.session_ref().locked_at()
+        let elapsed = app
+            .session_ref()
+            .locked_at()
             .map(|a| a.elapsed().as_secs())
             .unwrap_or(0);
 
-        tui.terminal().draw(|frame| {
-            lock_screen::draw_lock_screen(
-                frame,
-                &state,
-                &mode,
-                timer_str.as_deref(),
-                elapsed,
-            );
-        }).map_err(|e| CliError::Terminal(e.to_string()))?;
+        tui.terminal()
+            .draw(|frame| {
+                lock_screen::draw_lock_screen(frame, &state, &mode, timer_str.as_deref(), elapsed);
+            })
+            .map_err(|e| CliError::Terminal(e.to_string()))?;
 
         // Poll for terminal events (100ms tick)
         if crossterm::event::poll(std::time::Duration::from_millis(100))
             .map_err(|e| CliError::Terminal(e.to_string()))?
         {
-            if let crossterm::event::Event::Key(key) = crossterm::event::read()
-                .map_err(|e| CliError::Terminal(e.to_string()))?
+            if let crossterm::event::Event::Key(key) =
+                crossterm::event::read().map_err(|e| CliError::Terminal(e.to_string()))?
             {
                 // Allow Ctrl+C as software-level escape
-                if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL)
+                if key
+                    .modifiers
+                    .contains(crossterm::event::KeyModifiers::CONTROL)
                     && key.code == crossterm::event::KeyCode::Char('c')
                 {
                     app.perform_unlock()?;
@@ -244,11 +242,19 @@ fn run_startup_menu() -> Result<(), CliError> {
     println!("══════════════════════════════");
     println!(
         "Run On Startup:  {}",
-        if config.startup.run_on_startup { "ON" } else { "OFF" }
+        if config.startup.run_on_startup {
+            "ON"
+        } else {
+            "OFF"
+        }
     );
     println!(
         "Start Minimized: {}",
-        if config.startup.start_minimized { "ON" } else { "OFF" }
+        if config.startup.start_minimized {
+            "ON"
+        } else {
+            "OFF"
+        }
     );
     println!();
     println!("Options:");
@@ -278,7 +284,11 @@ fn run_startup_menu() -> Result<(), CliError> {
             config_manager.save(&config)?;
             println!(
                 "✓ Start Minimized: {}",
-                if config.startup.start_minimized { "ON" } else { "OFF" }
+                if config.startup.start_minimized {
+                    "ON"
+                } else {
+                    "OFF"
+                }
             );
         }
         _ => {}
@@ -308,7 +318,10 @@ fn run_reset() -> Result<(), CliError> {
 
 /// Print the help text to stdout (non-TUI, for piping/scripting).
 fn print_help() {
-    println!("CloaKey v{} — Protect the workflow. Don't stop the workflow.", env!("CARGO_PKG_VERSION"));
+    println!(
+        "CloaKey v{} — Protect the workflow. Don't stop the workflow.",
+        env!("CARGO_PKG_VERSION")
+    );
     println!();
     println!("USAGE:");
     println!("  cloak               Open interactive menu");
@@ -358,5 +371,3 @@ fn print_about() {
     println!("PRIVACY: Input is blocked but NEVER recorded.");
     println!("No telemetry. No analytics. No user accounts.");
 }
-
-

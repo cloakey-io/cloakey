@@ -4,15 +4,15 @@
 //! Provides a numbered menu with keyboard navigation.
 
 use ratatui::{
-    Frame,
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph},
+    Frame,
 };
 
+use crate::logo_data::{LOGO_HEIGHT, LOGO_PIXELS, LOGO_WIDTH};
 use cloakey_core::LockState;
-use crate::logo_data::{LOGO_WIDTH, LOGO_HEIGHT, LOGO_PIXELS};
 
 /// Generate the terminal colored logo paragraph using half-blocks.
 fn get_logo_paragraph() -> Paragraph<'static> {
@@ -23,7 +23,7 @@ fn get_logo_paragraph() -> Paragraph<'static> {
         let mut spans = Vec::new();
         // Add left margin padding for alignment
         spans.push(Span::raw("  "));
-        
+
         for x in 0..LOGO_WIDTH {
             let top_pixel = LOGO_PIXELS[y][x];
             // If y+1 is within bounds, get bottom pixel, else None
@@ -38,16 +38,10 @@ fn get_logo_paragraph() -> Paragraph<'static> {
                     spans.push(Span::raw(" "));
                 }
                 (Some((r, g, b)), None) => {
-                    spans.push(Span::styled(
-                        "▀",
-                        Style::default().fg(Color::Rgb(r, g, b)),
-                    ));
+                    spans.push(Span::styled("▀", Style::default().fg(Color::Rgb(r, g, b))));
                 }
                 (None, Some((r, g, b))) => {
-                    spans.push(Span::styled(
-                        "▄",
-                        Style::default().fg(Color::Rgb(r, g, b)),
-                    ));
+                    spans.push(Span::styled("▄", Style::default().fg(Color::Rgb(r, g, b))));
                 }
                 (Some((r1, g1, b1)), Some((r2, g2, b2))) => {
                     spans.push(Span::styled(
@@ -175,9 +169,9 @@ pub fn draw_main_menu(
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(9),  // Header / logo area (9 rows total, 7 rows inner)
-            Constraint::Min(1),     // Menu items
-            Constraint::Length(4),  // Status bar
+            Constraint::Length(9), // Header / logo area (9 rows total, 7 rows inner)
+            Constraint::Min(1),    // Menu items
+            Constraint::Length(4), // Status bar
         ])
         .split(area);
 
@@ -190,7 +184,10 @@ pub fn draw_main_menu(
     frame.render_widget(header_block, chunks[0]);
 
     // --- Split Header Inner Area into Logo (Left) and Text (Right) ---
-    let inner_header_area = chunks[0].inner(ratatui::layout::Margin { horizontal: 1, vertical: 1 });
+    let inner_header_area = chunks[0].inner(ratatui::layout::Margin {
+        horizontal: 1,
+        vertical: 1,
+    });
     let header_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
@@ -212,15 +209,28 @@ pub fn draw_main_menu(
                 .add_modifier(Modifier::BOLD),
         )),
         Line::from(Span::styled(
-            format!("v{}  ·  Protect the workflow. Don't stop the workflow.", version),
+            format!(
+                "v{}  ·  Protect the workflow. Don't stop the workflow.",
+                version
+            ),
             Style::default().fg(Color::DarkGray),
         )),
         Line::from(""),
         Line::from(vec![
             Span::styled("Emergency: ", Style::default().fg(Color::Yellow)),
-            Span::styled("CTRL + ALT + SHIFT (hold 2s)", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                "CTRL + ALT + SHIFT (hold 2s)",
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            ),
             Span::styled("  ·  Uncloak: ", Style::default().fg(Color::Cyan)),
-            Span::styled("CTRL + ALT + U", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+            Span::styled(
+                "CTRL + ALT + U",
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
         ]),
     ];
     let header_info = Paragraph::new(header_text).alignment(Alignment::Left);
@@ -310,10 +320,17 @@ pub fn draw_help_screen(frame: &mut Frame) {
     let help_text = vec![
         Line::from(Span::styled(
             " CloaKey — Command Reference",
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(""),
-        Line::from(Span::styled("COMMANDS:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "COMMANDS:",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from("  cloak                    Open interactive menu"),
         Line::from("  cloak keyboard           Lock keyboard only"),
         Line::from("  cloak mouse              Lock mouse only"),
@@ -328,7 +345,12 @@ pub fn draw_help_screen(frame: &mut Frame) {
         Line::from("  cloak help               Show this help"),
         Line::from("  cloak about              Version and license info"),
         Line::from(""),
-        Line::from(Span::styled("SHORTCUTS:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "SHORTCUTS:",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from("  CTRL + ALT + L           Lock all"),
         Line::from("  CTRL + ALT + K           Lock keyboard"),
         Line::from("  CTRL + ALT + M           Lock mouse"),
@@ -336,7 +358,12 @@ pub fn draw_help_screen(frame: &mut Frame) {
         Line::from("  CTRL + ALT + SHIFT       Emergency unlock (hold 2 seconds)"),
         Line::from("  CTRL + ALT + U           Uncloak (immediate unlock)"),
         Line::from(""),
-        Line::from(Span::styled("LINKS:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "LINKS:",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from("  Website:  https://cloakey.io"),
         Line::from("  GitHub:   https://github.com/cloakey/cloakey"),
         Line::from(""),
@@ -367,7 +394,9 @@ pub fn draw_about_screen(frame: &mut Frame, version: &str) {
         Line::from(""),
         Line::from(Span::styled(
             "  🔑  CloaKey",
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
         )),
         Line::from(Span::styled(
             format!("  Version {}  ·  MIT License", version),
@@ -383,12 +412,22 @@ pub fn draw_about_screen(frame: &mut Frame, version: &str) {
         Line::from("  It suppresses keyboard and mouse input while keeping all"),
         Line::from("  applications, AI agents, downloads, and processes running."),
         Line::from(""),
-        Line::from(Span::styled("PRIVACY:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "PRIVACY:",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from("  Input may be blocked. Input is NEVER recorded."),
         Line::from("  No telemetry. No analytics. No accounts."),
         Line::from("  Open source — inspect the code at any time."),
         Line::from(""),
-        Line::from(Span::styled("LINKS:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(
+            "LINKS:",
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
+        )),
         Line::from("  Website:  https://cloakey.io"),
         Line::from("  GitHub:   https://github.com/cloakey/cloakey"),
         Line::from("  License:  MIT (https://opensource.org/licenses/MIT)"),

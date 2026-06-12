@@ -14,9 +14,9 @@ use tracing::{debug, error, info};
 use windows::Win32::{
     Foundation::{HINSTANCE, LPARAM, LRESULT, WPARAM},
     UI::WindowsAndMessaging::{
-        CallNextHookEx, PeekMessageW, PostQuitMessage, SetWindowsHookExW,
-        TranslateMessage, DispatchMessageW, UnhookWindowsHookEx,
-        HHOOK, MSG, PM_REMOVE, WH_KEYBOARD_LL, WH_MOUSE_LL, WM_QUIT,
+        CallNextHookEx, DispatchMessageW, PeekMessageW, PostQuitMessage, SetWindowsHookExW,
+        TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, WH_KEYBOARD_LL, WH_MOUSE_LL,
+        WM_QUIT,
     },
 };
 

@@ -19,8 +19,8 @@ use tracing::trace;
 use windows::Win32::{
     Foundation::{LPARAM, LRESULT, WPARAM},
     UI::WindowsAndMessaging::{
-        WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MOUSEMOVE,
-        WM_MOUSEWHEEL, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_XBUTTONDOWN, WM_XBUTTONUP,
+        WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MOUSEMOVE, WM_MOUSEWHEEL,
+        WM_RBUTTONDOWN, WM_RBUTTONUP, WM_XBUTTONDOWN, WM_XBUTTONUP,
     },
 };
 
@@ -79,10 +79,8 @@ pub(crate) unsafe extern "system" fn mouse_hook_callback(
             }
         }
 
-        WM_LBUTTONDOWN | WM_LBUTTONUP
-        | WM_RBUTTONDOWN | WM_RBUTTONUP
-        | WM_MBUTTONDOWN | WM_MBUTTONUP
-        | WM_XBUTTONDOWN | WM_XBUTTONUP => {
+        WM_LBUTTONDOWN | WM_LBUTTONUP | WM_RBUTTONDOWN | WM_RBUTTONUP | WM_MBUTTONDOWN
+        | WM_MBUTTONUP | WM_XBUTTONDOWN | WM_XBUTTONUP => {
             if mode.mouse_clicks_blocked {
                 trace!("Blocking mouse click event: msg={:#x}", msg);
                 return block_event();

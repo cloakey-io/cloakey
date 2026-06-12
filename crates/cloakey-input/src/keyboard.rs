@@ -9,13 +9,13 @@
 //! 3. If emergency unlock detected: send signal, allow event through.
 //! 4. Otherwise: block or pass based on lock mode.
 
-use std::sync::{Mutex, OnceLock};
 use crossbeam_channel::Sender;
+use std::sync::{Mutex, OnceLock};
 use tracing::trace;
 use windows::Win32::{
     Foundation::{LPARAM, LRESULT, WPARAM},
     UI::Input::KeyboardAndMouse::{
-        GetAsyncKeyState, VK_CONTROL, VK_LCONTROL, VK_RCONTROL, VK_MENU, VK_LMENU, VK_RMENU,
+        GetAsyncKeyState, VK_CONTROL, VK_LCONTROL, VK_LMENU, VK_MENU, VK_RCONTROL, VK_RMENU,
     },
     UI::WindowsAndMessaging::{KBDLLHOOKSTRUCT, WM_KEYDOWN, WM_SYSKEYDOWN},
 };
@@ -33,10 +33,7 @@ static SIGNAL_TX: OnceLock<Sender<SafetySignal>> = OnceLock::new();
 /// Initialize the keyboard hook globals.
 ///
 /// Must be called before installing the keyboard hook.
-pub(crate) fn init_keyboard_state(
-    lock_mode: LockMode,
-    signal_tx: Sender<SafetySignal>,
-) {
+pub(crate) fn init_keyboard_state(lock_mode: LockMode, signal_tx: Sender<SafetySignal>) {
     let _ = LOCK_MODE.set(Mutex::new(lock_mode));
     let _ = SIGNAL_TX.set(signal_tx);
 }
@@ -92,7 +89,7 @@ pub(crate) unsafe extern "system" fn keyboard_hook_callback(
                 let alt_held = (GetAsyncKeyState(VK_MENU.0 as i32) as u16 & 0x8000) != 0
                     || (GetAsyncKeyState(VK_LMENU.0 as i32) as u16 & 0x8000) != 0
                     || (GetAsyncKeyState(VK_RMENU.0 as i32) as u16 & 0x8000) != 0;
-                
+
                 if ctrl_held && alt_held {
                     trace!("Uncloak triggered via keyboard hook (Ctrl+Alt+U)");
                     if let Some(tx) = SIGNAL_TX.get() {

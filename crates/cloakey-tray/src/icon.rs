@@ -1,5 +1,5 @@
-use std::path::Path;
 use image::GenericImageView;
+use std::path::Path;
 use tray_icon::Icon;
 
 /// Load a system tray icon from a PNG file path.
@@ -20,16 +20,16 @@ pub fn create_default_icon(color: [u8; 4]) -> Icon {
     let width = 32;
     let height = 32;
     let mut rgba = vec![0u8; (width * height * 4) as usize];
-    
+
     for y in 0..height {
         for x in 0..width {
             let idx = ((y * width + x) * 4) as usize;
-            
+
             // Draw a circular dot
             let dx = (x as f32) - 15.5;
             let dy = (y as f32) - 15.5;
             let dist_sq = dx * dx + dy * dy;
-            
+
             // Antialiased circle edge
             if dist_sq <= 12.5 * 12.5 {
                 rgba[idx] = color[0];
@@ -51,6 +51,6 @@ pub fn create_default_icon(color: [u8; 4]) -> Icon {
             }
         }
     }
-    
+
     Icon::from_rgba(rgba, width, height).expect("Failed to create fallback icon")
 }

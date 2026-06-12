@@ -19,9 +19,8 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{
         CreateWindowExW, DefWindowProcW, DestroyWindow, GetClientRect, GetSystemMetrics,
         PostMessageW, RegisterClassExW, SetLayeredWindowAttributes, ShowWindow, LWA_ALPHA,
-        SM_CXSCREEN, SM_CYSCREEN, SW_SHOW, WM_DESTROY, WM_PAINT, WM_USER, WNDCLASSEXW,
-        WS_EX_LAYERED, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP,
-        WM_LBUTTONDBLCLK,
+        SM_CXSCREEN, SM_CYSCREEN, SW_SHOW, WM_DESTROY, WM_LBUTTONDBLCLK, WM_PAINT, WM_USER,
+        WNDCLASSEXW, WS_EX_LAYERED, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_EX_TRANSPARENT, WS_POPUP,
     },
 };
 
@@ -36,8 +35,9 @@ const WM_CLOSE_OVERLAY: u32 = WM_USER + 2;
 const WM_TRAY_CALLBACK: u32 = WM_USER + 10;
 
 /// Global safety signal sender to trigger unlock when double-clicking the tray icon.
-static SAFETY_SENDER: std::sync::Mutex<Option<crossbeam_channel::Sender<cloakey_core::SafetySignal>>> =
-    std::sync::Mutex::new(None);
+static SAFETY_SENDER: std::sync::Mutex<
+    Option<crossbeam_channel::Sender<cloakey_core::SafetySignal>>,
+> = std::sync::Mutex::new(None);
 
 /// Global handle to the overlay window (0 = no window).
 pub(crate) static OVERLAY_HWND: AtomicIsize = AtomicIsize::new(0);

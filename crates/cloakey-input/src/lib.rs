@@ -48,11 +48,11 @@ mod engine {
     use tracing::{debug, error, info, warn};
     use windows::Win32::UI::WindowsAndMessaging::HHOOK;
 
-    use cloakey_core::{InputHeartbeat, LockMode, SafetySignal, EmergencyUnlockTracker};
+    use cloakey_core::{EmergencyUnlockTracker, InputHeartbeat, LockMode, SafetySignal};
 
     use crate::{
-        error::InputError,
         emergency::all_emergency_keys_held,
+        error::InputError,
         hooks::{
             install_keyboard_hook, install_mouse_hook, remove_hook, run_message_pump,
             stop_message_pump,
@@ -123,10 +123,7 @@ mod engine {
                 .name("cloakey-input-hooks".to_string())
                 .spawn(move || {
                     // Initialize keyboard and mouse global state
-                    init_keyboard_state(
-                        initial_mode_clone.clone(),
-                        signal_tx_clone.clone(),
-                    );
+                    init_keyboard_state(initial_mode_clone.clone(), signal_tx_clone.clone());
                     init_mouse_state(initial_mode_clone);
 
                     // Install hooks

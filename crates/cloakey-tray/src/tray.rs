@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use crate::icon::{create_default_icon, load_icon_from_path};
 use cloakey_core::LockState;
-use tray_icon::{TrayIcon, TrayIconBuilder};
 use muda::{Menu, MenuItem, PredefinedMenuItem};
-use crate::icon::{load_icon_from_path, create_default_icon};
+use std::path::PathBuf;
+use tray_icon::{TrayIcon, TrayIconBuilder};
 
 pub struct TrayManager {
     tray_icon: TrayIcon,
@@ -12,7 +12,7 @@ pub struct TrayManager {
     item_ghost_mode: MenuItem,
     item_unlock: MenuItem,
     item_quit: MenuItem,
-    
+
     // Loaded icons
     icon_unlocked: tray_icon::Icon,
     icon_locked: tray_icon::Icon,
@@ -23,18 +23,20 @@ impl TrayManager {
     /// Create a new TrayManager, initializing the tray icon and context menu.
     pub fn new() -> Result<Self, String> {
         let exe_path = std::env::current_exe().map_err(|e| e.to_string())?;
-        let exe_dir = exe_path.parent().ok_or_else(|| "Failed to get parent directory".to_string())?;
-        
+        let exe_dir = exe_path
+            .parent()
+            .ok_or_else(|| "Failed to get parent directory".to_string())?;
+
         let assets_dir = exe_dir.join("assets");
-        
+
         // Load custom green key icon
         let icon_unlocked = load_icon_from_path(assets_dir.join("icon.png"))
             .unwrap_or_else(|_| create_default_icon([0, 180, 0, 255]));
-            
+
         // Load custom red lock icon
         let icon_locked = load_icon_from_path(assets_dir.join("icon_locked.png"))
             .unwrap_or_else(|_| create_default_icon([220, 0, 0, 255]));
-            
+
         // Purple circle for Ghost Mode fallback
         let icon_ghost = create_default_icon([120, 0, 180, 255]);
 
@@ -55,7 +57,8 @@ impl TrayManager {
             &item_unlock,
             &PredefinedMenuItem::separator(),
             &item_quit,
-        ]).map_err(|e| e.to_string())?;
+        ])
+        .map_err(|e| e.to_string())?;
 
         let tray_icon = TrayIconBuilder::new()
             .with_menu(Box::new(menu))
@@ -81,13 +84,13 @@ impl TrayManager {
     /// Update tray icon, tooltip, and menu item enabled states based on lock state.
     pub fn update_state(&self, state: &LockState) {
         let is_locked = *state != LockState::Unlocked;
-        
+
         let _ = self.item_lock_all.set_enabled(!is_locked);
         let _ = self.item_lock_kbd.set_enabled(!is_locked);
         let _ = self.item_lock_mouse.set_enabled(!is_locked);
         let _ = self.item_ghost_mode.set_enabled(!is_locked);
         let _ = self.item_unlock.set_enabled(is_locked);
-        
+
         let (icon, tooltip) = match state {
             LockState::Unlocked => (&self.icon_unlocked, "CloaKey — Unlocked"),
             LockState::KeyboardLocked => (&self.icon_locked, "CloaKey — Keyboard Locked"),
@@ -96,7 +99,7 @@ impl TrayManager {
             LockState::GhostMode => (&self.icon_ghost, "CloaKey — Ghost Mode"),
             LockState::TimedLock => (&self.icon_locked, "CloaKey — Timed Lock Active"),
         };
-        
+
         let _ = self.tray_icon.set_icon(Some(icon.clone()));
         let _ = self.tray_icon.set_tooltip(Some(tooltip));
     }

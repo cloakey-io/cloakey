@@ -33,7 +33,8 @@ mod windows_startup {
         let exe_path =
             std::env::current_exe().map_err(|e| format!("Cannot get executable path: {}", e))?;
 
-        let tray_path = exe_path.parent()
+        let tray_path = exe_path
+            .parent()
             .map(|p| p.join("cloak-tray.exe"))
             .ok_or_else(|| "Failed to get parent directory".to_string())?;
 

@@ -1,11 +1,15 @@
+use image::{GenericImageView, ImageEncoder};
 use std::fs::File;
 use std::path::Path;
-use image::{GenericImageView, ImageEncoder};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let logo_path = Path::new("CloaKey logo no bg.png");
     if !logo_path.exists() {
-        return Err(format!("Could not find '{}' in the workspace root.", logo_path.display()).into());
+        return Err(format!(
+            "Could not find '{}' in the workspace root.",
+            logo_path.display()
+        )
+        .into());
     }
 
     println!("Loading custom logo: {}", logo_path.display());
@@ -34,11 +38,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let g = pixel[1] as f32;
             let b = pixel[2] as f32;
             let intensity = 0.299 * r + 0.587 * g + 0.114 * b;
-            
+
             // Map intensity to a strong red color
-            pixel[0] = (intensity * 1.1).min(255.0) as u8;   // High Red
-            pixel[1] = (intensity * 0.1) as u8;             // Minimal Green
-            pixel[2] = (intensity * 0.1) as u8;             // Minimal Blue
+            pixel[0] = (intensity * 1.1).min(255.0) as u8; // High Red
+            pixel[1] = (intensity * 0.1) as u8; // Minimal Green
+            pixel[2] = (intensity * 0.1) as u8; // Minimal Blue
         }
     }
     let locked_img = image::DynamicImage::ImageRgba8(locked_rgba);
@@ -62,13 +66,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tui_img = img.resize(tui_w, tui_h, image::imageops::FilterType::Lanczos3);
     let (actual_w, actual_h) = tui_img.dimensions();
     let tui_rgba = tui_img.to_rgba8();
-    
+
     let mut rust_code = String::new();
     rust_code.push_str("/// Auto-generated logo pixel data from CloaKey logo no bg.png\n");
     rust_code.push_str(&format!("pub const LOGO_WIDTH: usize = {};\n", actual_w));
     rust_code.push_str(&format!("pub const LOGO_HEIGHT: usize = {};\n\n", actual_h));
-    rust_code.push_str("pub const LOGO_PIXELS: [[Option<(u8, u8, u8)>; LOGO_WIDTH]; LOGO_HEIGHT] = [\n");
-    
+    rust_code
+        .push_str("pub const LOGO_PIXELS: [[Option<(u8, u8, u8)>; LOGO_WIDTH]; LOGO_HEIGHT] = [\n");
+
     for y in 0..actual_h {
         rust_code.push_str("    [\n        ");
         for x in 0..actual_w {
@@ -77,13 +82,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if alpha < 35 {
                 rust_code.push_str("None, ");
             } else {
-                rust_code.push_str(&format!("Some(({}, {}, {})), ", pixel[0], pixel[1], pixel[2]));
+                rust_code.push_str(&format!(
+                    "Some(({}, {}, {})), ",
+                    pixel[0], pixel[1], pixel[2]
+                ));
             }
         }
         rust_code.push_str("\n    ],\n");
     }
     rust_code.push_str("];\n");
-    
+
     std::fs::write("crates/cloakey-cli/src/logo_data.rs", rust_code)?;
 
     println!("✓ All icon and TUI logo assets successfully generated!");

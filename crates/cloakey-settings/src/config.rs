@@ -165,7 +165,10 @@ impl ConfigManager {
         let path = self.config_path();
 
         if !path.exists() {
-            info!("No config file found at '{}', using defaults", path.display());
+            info!(
+                "No config file found at '{}', using defaults",
+                path.display()
+            );
             return Ok(CloaKeyConfig::default());
         }
 
@@ -204,7 +207,8 @@ impl ConfigManager {
         self.ensure_dir()?;
 
         let path = self.config_path();
-        let contents = toml::to_string_pretty(config).expect("CloaKeyConfig is always serializable");
+        let contents =
+            toml::to_string_pretty(config).expect("CloaKeyConfig is always serializable");
 
         std::fs::write(&path, contents).map_err(|e| SettingsError::WriteFailed {
             path: path.display().to_string(),

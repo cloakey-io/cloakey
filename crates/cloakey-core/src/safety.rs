@@ -201,7 +201,9 @@ impl SafetyController {
                     if heartbeat.is_enabled() {
                         let is_alive = heartbeat.check_and_reset();
                         if !is_alive {
-                            warn!("Input engine heartbeat missed — sending DeadmanUnlock for safety");
+                            warn!(
+                                "Input engine heartbeat missed — sending DeadmanUnlock for safety"
+                            );
                             let _ = tx.send(SafetySignal::DeadmanUnlock);
                         }
                     }

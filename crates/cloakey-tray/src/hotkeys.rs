@@ -16,21 +16,31 @@ impl HotkeyManager {
     /// Initialize the global hotkey manager and register CloaKey hotkeys.
     pub fn new() -> Result<Self, String> {
         let manager = GlobalHotKeyManager::new().map_err(|e| e.to_string())?;
-        
+
         // Setup hotkey definitions (Ctrl+Alt + L/K/M/G/U)
         let hotkey_all = HotKey::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyL);
         let hotkey_kbd = HotKey::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyK);
         let hotkey_mouse = HotKey::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyM);
         let hotkey_ghost = HotKey::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyG);
         let hotkey_uncloak = HotKey::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyU);
-        
+
         // Register hotkeys
-        manager.register(hotkey_all).map_err(|e| format!("Failed to register Ctrl+Alt+L: {}", e))?;
-        manager.register(hotkey_kbd).map_err(|e| format!("Failed to register Ctrl+Alt+K: {}", e))?;
-        manager.register(hotkey_mouse).map_err(|e| format!("Failed to register Ctrl+Alt+M: {}", e))?;
-        manager.register(hotkey_ghost).map_err(|e| format!("Failed to register Ctrl+Alt+G: {}", e))?;
-        manager.register(hotkey_uncloak).map_err(|e| format!("Failed to register Ctrl+Alt+U: {}", e))?;
-        
+        manager
+            .register(hotkey_all)
+            .map_err(|e| format!("Failed to register Ctrl+Alt+L: {}", e))?;
+        manager
+            .register(hotkey_kbd)
+            .map_err(|e| format!("Failed to register Ctrl+Alt+K: {}", e))?;
+        manager
+            .register(hotkey_mouse)
+            .map_err(|e| format!("Failed to register Ctrl+Alt+M: {}", e))?;
+        manager
+            .register(hotkey_ghost)
+            .map_err(|e| format!("Failed to register Ctrl+Alt+G: {}", e))?;
+        manager
+            .register(hotkey_uncloak)
+            .map_err(|e| format!("Failed to register Ctrl+Alt+U: {}", e))?;
+
         Ok(Self {
             _manager: manager,
             hotkey_all,
@@ -40,7 +50,7 @@ impl HotkeyManager {
             hotkey_uncloak,
         })
     }
-    
+
     /// Map a global hotkey event ID to a SafetySignal.
     pub fn handle_hotkey_event(&self, event_id: u32) -> Option<cloakey_core::SafetySignal> {
         if event_id == self.hotkey_all.id() {
