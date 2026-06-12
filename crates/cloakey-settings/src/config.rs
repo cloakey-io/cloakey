@@ -24,7 +24,7 @@ use crate::{
 const APP_NAME: &str = "CloaKey";
 
 /// General settings that apply to the overall CloaKey application.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GeneralSettings {
     /// The overlay mode to use when protection is active.
     pub overlay: OverlayMode,
@@ -36,18 +36,8 @@ pub struct GeneralSettings {
     pub start_minimized: bool,
 }
 
-impl Default for GeneralSettings {
-    fn default() -> Self {
-        Self {
-            overlay: OverlayMode::default(),
-            logo: LogoSettings::default(),
-            start_minimized: false,
-        }
-    }
-}
-
 /// Startup integration settings (Windows Registry).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct StartupSettings {
     /// Whether CloaKey should run automatically at Windows startup.
     pub run_on_startup: bool,
@@ -56,19 +46,10 @@ pub struct StartupSettings {
     pub start_minimized: bool,
 }
 
-impl Default for StartupSettings {
-    fn default() -> Self {
-        Self {
-            run_on_startup: false,
-            start_minimized: false,
-        }
-    }
-}
-
 /// Root configuration structure for CloaKey.
 ///
 /// This is serialized to and deserialized from `%APPDATA%\CloaKey\config.toml`.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CloaKeyConfig {
     /// General application settings.
     #[serde(default)]
@@ -81,16 +62,6 @@ pub struct CloaKeyConfig {
     /// Windows startup integration settings.
     #[serde(default)]
     pub startup: StartupSettings,
-}
-
-impl Default for CloaKeyConfig {
-    fn default() -> Self {
-        Self {
-            general: GeneralSettings::default(),
-            shortcuts: ShortcutConfig::default(),
-            startup: StartupSettings::default(),
-        }
-    }
 }
 
 impl CloaKeyConfig {

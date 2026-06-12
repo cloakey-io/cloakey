@@ -209,7 +209,7 @@ mod tests {
         let timer = CountdownTimer::new(Duration::from_secs(60));
         let remaining = timer.remaining_secs();
         // Should be 59 or 60 depending on timing
-        assert!(remaining >= 59 && remaining <= 60);
+        assert!((59..=60).contains(&remaining));
     }
 
     #[test]

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// How the CloaKey overlay is displayed when a lock is active.
 ///
 /// The overlay is always click-through and never intercepts input.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum OverlayMode {
     /// No overlay displayed. Silent protection mode.
@@ -13,15 +13,10 @@ pub enum OverlayMode {
     /// Small status text in the bottom-right corner of the primary monitor.
     Minimal,
     /// Centered translucent status display with lock mode and timer.
+    #[default]
     Standard,
     /// Reserved for a future release with larger, more prominent indicators.
     Prominent,
-}
-
-impl Default for OverlayMode {
-    fn default() -> Self {
-        OverlayMode::Standard
-    }
 }
 
 impl std::fmt::Display for OverlayMode {
@@ -38,18 +33,13 @@ impl std::fmt::Display for OverlayMode {
 /// Logo display size inside the overlay.
 ///
 /// Only used when `show_logo` is true and the overlay mode supports it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum LogoSize {
     Small,
+    #[default]
     Medium,
     Large,
-}
-
-impl Default for LogoSize {
-    fn default() -> Self {
-        LogoSize::Medium
-    }
 }
 
 /// Settings that control the logo appearance inside the overlay.

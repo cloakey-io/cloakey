@@ -1,7 +1,6 @@
 use crate::icon::{create_default_icon, load_icon_from_path};
 use cloakey_core::LockState;
 use muda::{Menu, MenuItem, PredefinedMenuItem};
-use std::path::PathBuf;
 use tray_icon::{TrayIcon, TrayIconBuilder};
 
 pub struct TrayManager {
@@ -85,11 +84,11 @@ impl TrayManager {
     pub fn update_state(&self, state: &LockState) {
         let is_locked = *state != LockState::Unlocked;
 
-        let _ = self.item_lock_all.set_enabled(!is_locked);
-        let _ = self.item_lock_kbd.set_enabled(!is_locked);
-        let _ = self.item_lock_mouse.set_enabled(!is_locked);
-        let _ = self.item_ghost_mode.set_enabled(!is_locked);
-        let _ = self.item_unlock.set_enabled(is_locked);
+        self.item_lock_all.set_enabled(!is_locked);
+        self.item_lock_kbd.set_enabled(!is_locked);
+        self.item_lock_mouse.set_enabled(!is_locked);
+        self.item_ghost_mode.set_enabled(!is_locked);
+        self.item_unlock.set_enabled(is_locked);
 
         let (icon, tooltip) = match state {
             LockState::Unlocked => (&self.icon_unlocked, "CloaKey — Unlocked"),

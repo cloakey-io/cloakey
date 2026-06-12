@@ -379,7 +379,7 @@ impl App {
         // Validate transition
         self.session
             .transition_to(state.clone())
-            .map_err(|e| CliError::Core(e))?;
+            .map_err(CliError::Core)?;
 
         // Start input engine
         let mode = self.session.lock_mode().clone();
@@ -388,7 +388,7 @@ impl App {
         let heartbeat = self.safety.heartbeat();
 
         let engine = InputEngine::start(mode.clone(), hold_ms, signal_tx, heartbeat)
-            .map_err(|e| CliError::Input(e))?;
+            .map_err(CliError::Input)?;
 
         self.input_engine = Some(engine);
 
@@ -400,7 +400,7 @@ impl App {
                 timer_display.as_deref(),
                 self.safety.signal_sender(),
             )
-            .map_err(|e| CliError::Overlay(e))?;
+            .map_err(CliError::Overlay)?;
 
         // Minimize the console window while locked
         minimize_console();
@@ -412,12 +412,12 @@ impl App {
 
     /// Start a timed lock.
     pub fn start_timed_lock(&mut self, duration_str: &str) -> Result<(), CliError> {
-        let duration = parse_duration(duration_str).map_err(|e| CliError::Core(e))?;
+        let duration = parse_duration(duration_str).map_err(CliError::Core)?;
         let timer = CountdownTimer::new(duration);
 
         self.session
             .start_timed_lock(timer)
-            .map_err(|e| CliError::Core(e))?;
+            .map_err(CliError::Core)?;
 
         let mode = self.session.lock_mode().clone();
         let hold_ms = self.config.shortcuts.emergency_unlock_hold_ms;
@@ -425,7 +425,7 @@ impl App {
         let heartbeat = self.safety.heartbeat();
 
         let engine = InputEngine::start(mode, hold_ms, signal_tx, heartbeat)
-            .map_err(|e| CliError::Input(e))?;
+            .map_err(CliError::Input)?;
 
         self.input_engine = Some(engine);
 
@@ -436,7 +436,7 @@ impl App {
                 timer_display.as_deref(),
                 self.safety.signal_sender(),
             )
-            .map_err(|e| CliError::Overlay(e))?;
+            .map_err(CliError::Overlay)?;
 
         // Minimize the console window while locked
         minimize_console();

@@ -259,7 +259,7 @@ fn run_uninstall() -> Result<()> {
 
     println!("Removing Registry entries...");
     let registry_script = "Remove-Item -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CloaKey' -Recurse -ErrorAction SilentlyContinue | Out-Null";
-    let _ = run_powershell_cmd(registry_script)?;
+    run_powershell_cmd(registry_script)?;
 
     println!("Deleting installed files...");
     let target_cloak = install_dir.join("cloak.exe");

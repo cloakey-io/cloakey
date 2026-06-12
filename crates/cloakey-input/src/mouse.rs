@@ -85,18 +85,14 @@ pub(crate) unsafe extern "system" fn mouse_hook_callback(
         }
 
         WM_LBUTTONDOWN | WM_LBUTTONUP | WM_RBUTTONDOWN | WM_RBUTTONUP | WM_MBUTTONDOWN
-        | WM_MBUTTONUP | WM_XBUTTONDOWN | WM_XBUTTONUP => {
-            if mode.mouse_clicks_blocked {
-                trace!("Blocking mouse click event: msg={:#x}", msg);
-                return block_event();
-            }
+        | WM_MBUTTONUP | WM_XBUTTONDOWN | WM_XBUTTONUP if mode.mouse_clicks_blocked => {
+            trace!("Blocking mouse click event: msg={:#x}", msg);
+            return block_event();
         }
 
-        WM_MOUSEWHEEL => {
-            if mode.mouse_scroll_blocked {
-                trace!("Blocking mouse scroll event");
-                return block_event();
-            }
+        WM_MOUSEWHEEL if mode.mouse_scroll_blocked => {
+            trace!("Blocking mouse scroll event");
+            return block_event();
         }
 
         _ => {} // Unknown mouse message — pass through

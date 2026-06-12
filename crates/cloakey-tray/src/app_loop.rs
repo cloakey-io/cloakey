@@ -42,7 +42,7 @@ pub fn run_daemon() -> Result<(), String> {
         let mut msg = MSG::default();
         unsafe {
             while PeekMessageW(&mut msg, None, 0, 0, PM_REMOVE).as_bool() {
-                TranslateMessage(&msg);
+                let _ = TranslateMessage(&msg);
                 let _ = DispatchMessageW(&msg);
             }
         }
@@ -113,6 +113,7 @@ pub fn run_daemon() -> Result<(), String> {
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn process_signal(
     signal: SafetySignal,
     running: &mut bool,

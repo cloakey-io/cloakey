@@ -46,7 +46,6 @@ fn init_logging(interactive: bool) {
 
             if let Ok(file) = OpenOptions::new()
                 .create(true)
-                .write(true)
                 .append(true)
                 .open(log_file_path)
             {
@@ -118,7 +117,7 @@ fn run(cli: Cli) -> Result<(), CliError> {
         Some(Command::Timer { duration }) => {
             info!("Starting timed lock: {} (direct command)", duration);
             // Validate duration early for good error messages
-            parse_duration(&duration).map_err(|e| CliError::Core(e))?;
+            parse_duration(&duration).map_err(CliError::Core)?;
             let mut app = App::new()?;
             app.start_timed_lock(&duration)?;
             run_lock_until_unlock(&mut app)?;
@@ -267,13 +266,13 @@ fn run_startup_menu() -> Result<(), CliError> {
     std::io::stdin().read_line(&mut input).ok();
     match input.trim() {
         "1" => {
-            startup::set_startup_enabled(true).map_err(|e| CliError::Other(e))?;
+            startup::set_startup_enabled(true).map_err(CliError::Other)?;
             config.startup.run_on_startup = true;
             config_manager.save(&config)?;
             println!("✓ CloaKey will run at Windows startup.");
         }
         "2" => {
-            startup::set_startup_enabled(false).map_err(|e| CliError::Other(e))?;
+            startup::set_startup_enabled(false).map_err(CliError::Other)?;
             config.startup.run_on_startup = false;
             config_manager.save(&config)?;
             println!("✓ CloaKey will not run at Windows startup.");
