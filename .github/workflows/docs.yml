@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'docs/**'
+      - 'Docs/**'
       - '.github/workflows/docs.yml'
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Point this to the directory containing index.html
-          path: './docs/landing'
+          path: './Docs/landing'
 
       - name: Deploy to GitHub Pages
         id: deployment
