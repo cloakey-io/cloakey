@@ -193,12 +193,20 @@ fn perform_lock(
         return Ok(()); // Already locked
     }
 
+    // Reload config to make sure settings updates (like overlay mode changes) are applied immediately
+    let mut hold_ms = config.shortcuts.emergency_unlock_hold_ms;
+    if let Ok(config_manager) = ConfigManager::new() {
+        if let Ok(new_config) = config_manager.load() {
+            hold_ms = new_config.shortcuts.emergency_unlock_hold_ms;
+            *overlay = OverlayManager::new(new_config.general.overlay);
+        }
+    }
+
     session
         .transition_to(state.clone())
         .map_err(|e| e.to_string())?;
 
     let mode = session.lock_mode().clone();
-    let hold_ms = config.shortcuts.emergency_unlock_hold_ms;
     let signal_tx = safety.signal_sender();
     let heartbeat = safety.heartbeat();
 

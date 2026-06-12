@@ -13,7 +13,7 @@
 //! | WM_MBUTTONDOWN | Pass | Pass           | Block       | Block       | Block     | Block     |
 //! | WM_MOUSEWHEEL  | Pass | Pass           | Block       | Block       | Block     | Block     |
 
-use std::sync::{Mutex, OnceLock};
+use std::sync::Mutex;
 
 use tracing::trace;
 use windows::Win32::{
@@ -29,19 +29,24 @@ use cloakey_core::LockMode;
 use crate::hooks::{block_event, pass_through};
 
 /// Global lock mode for the mouse hook callback.
-static MOUSE_LOCK_MODE: OnceLock<Mutex<LockMode>> = OnceLock::new();
+static MOUSE_LOCK_MODE: Mutex<LockMode> = Mutex::new(LockMode {
+    keyboard_blocked: false,
+    mouse_movement_blocked: false,
+    mouse_clicks_blocked: false,
+    mouse_scroll_blocked: false,
+});
 
 /// Initialize the mouse hook globals.
 pub(crate) fn init_mouse_state(lock_mode: LockMode) {
-    let _ = MOUSE_LOCK_MODE.set(Mutex::new(lock_mode));
+    if let Ok(mut guard) = MOUSE_LOCK_MODE.lock() {
+        *guard = lock_mode;
+    }
 }
 
 /// Update the current lock mode for the mouse hook.
 pub(crate) fn update_mouse_lock_mode(mode: LockMode) {
-    if let Some(m) = MOUSE_LOCK_MODE.get() {
-        if let Ok(mut guard) = m.lock() {
-            *guard = mode;
-        }
+    if let Ok(mut guard) = MOUSE_LOCK_MODE.lock() {
+        *guard = mode;
     }
 }
 
@@ -59,9 +64,9 @@ pub(crate) unsafe extern "system" fn mouse_hook_callback(
         return pass_through(n_code, w_param, l_param);
     }
 
-    let mode = match MOUSE_LOCK_MODE.get().and_then(|m| m.lock().ok()) {
-        Some(m) => m.clone(),
-        None => return pass_through(n_code, w_param, l_param),
+    let mode = match MOUSE_LOCK_MODE.lock() {
+        Ok(m) => m.clone(),
+        Err(_) => return pass_through(n_code, w_param, l_param),
     };
 
     // If nothing is blocked for mouse, pass through immediately

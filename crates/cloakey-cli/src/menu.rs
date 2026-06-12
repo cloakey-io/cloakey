@@ -11,50 +11,74 @@ use ratatui::{
     Frame,
 };
 
-use crate::logo_data::{LOGO_HEIGHT, LOGO_PIXELS, LOGO_WIDTH};
 use cloakey_core::LockState;
 
-/// Generate the terminal colored logo paragraph using half-blocks.
+/// Generate the terminal colored logo paragraph using sharp Unicode symbols.
 fn get_logo_paragraph() -> Paragraph<'static> {
-    let mut lines = Vec::new();
+    let cloak_color = Color::Rgb(0, 150, 255);
+    let key_color = Color::Rgb(255, 204, 0);
 
-    // Since we use half-blocks, we process two rows at a time
-    for y in (0..LOGO_HEIGHT).step_by(2) {
-        let mut spans = Vec::new();
-        // Add left margin padding for alignment
-        spans.push(Span::raw("  "));
-
-        for x in 0..LOGO_WIDTH {
-            let top_pixel = LOGO_PIXELS[y][x];
-            // If y+1 is within bounds, get bottom pixel, else None
-            let bottom_pixel = if y + 1 < LOGO_HEIGHT {
-                LOGO_PIXELS[y + 1][x]
-            } else {
-                None
-            };
-
-            match (top_pixel, bottom_pixel) {
-                (None, None) => {
-                    spans.push(Span::raw(" "));
-                }
-                (Some((r, g, b)), None) => {
-                    spans.push(Span::styled("▀", Style::default().fg(Color::Rgb(r, g, b))));
-                }
-                (None, Some((r, g, b))) => {
-                    spans.push(Span::styled("▄", Style::default().fg(Color::Rgb(r, g, b))));
-                }
-                (Some((r1, g1, b1)), Some((r2, g2, b2))) => {
-                    spans.push(Span::styled(
-                        "▄",
-                        Style::default()
-                            .fg(Color::Rgb(r2, g2, b2))
-                            .bg(Color::Rgb(r1, g1, b1)),
-                    ));
-                }
-            }
-        }
-        lines.push(Line::from(spans));
-    }
+    let lines = vec![
+        Line::from(vec![
+            Span::raw("    "),
+            Span::styled("▄▄████▄▄", Style::default().fg(cloak_color)),
+            Span::raw("    "),
+        ]),
+        Line::from(vec![
+            Span::raw("   "),
+            Span::styled("▄◤", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+            Span::styled("▄▄", Style::default().fg(key_color)),
+            Span::raw("  "),
+            Span::styled("◥▄", Style::default().fg(cloak_color)),
+            Span::raw("   "),
+        ]),
+        Line::from(vec![
+            Span::raw("  "),
+            Span::styled("▄◤", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+            Span::styled("█  █", Style::default().fg(key_color)),
+            Span::raw("  "),
+            Span::styled("◥▄", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+        ]),
+        Line::from(vec![
+            Span::raw("  "),
+            Span::styled("█", Style::default().fg(cloak_color)),
+            Span::raw("   "),
+            Span::styled("◥▄▄◤", Style::default().fg(key_color)),
+            Span::raw("   "),
+            Span::styled("█", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+        ]),
+        Line::from(vec![
+            Span::raw("  "),
+            Span::styled("█", Style::default().fg(cloak_color)),
+            Span::raw("    "),
+            Span::styled("██", Style::default().fg(key_color)),
+            Span::raw("    "),
+            Span::styled("█", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+        ]),
+        Line::from(vec![
+            Span::raw("  "),
+            Span::styled("◥▄", Style::default().fg(cloak_color)),
+            Span::raw("   "),
+            Span::styled("██▄", Style::default().fg(key_color)),
+            Span::raw("   "),
+            Span::styled("▄◤", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+        ]),
+        Line::from(vec![
+            Span::raw("   "),
+            Span::styled("◥▄", Style::default().fg(cloak_color)),
+            Span::raw("  "),
+            Span::styled("██▄", Style::default().fg(key_color)),
+            Span::raw("  "),
+            Span::styled("▄◤", Style::default().fg(cloak_color)),
+            Span::raw("   "),
+        ]),
+    ];
 
     Paragraph::new(lines)
 }

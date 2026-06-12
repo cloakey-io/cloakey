@@ -10,7 +10,7 @@
 //! 4. Otherwise: block or pass based on lock mode.
 
 use crossbeam_channel::Sender;
-use std::sync::{Mutex, OnceLock};
+use std::sync::Mutex;
 use tracing::trace;
 use windows::Win32::{
     Foundation::{LPARAM, LRESULT, WPARAM},
@@ -25,25 +25,32 @@ use cloakey_core::{LockMode, SafetySignal};
 use crate::hooks::{block_event, pass_through};
 
 /// Global lock mode — read by the hook callback to decide whether to block.
-static LOCK_MODE: OnceLock<Mutex<LockMode>> = OnceLock::new();
+static LOCK_MODE: Mutex<LockMode> = Mutex::new(LockMode {
+    keyboard_blocked: false,
+    mouse_movement_blocked: false,
+    mouse_clicks_blocked: false,
+    mouse_scroll_blocked: false,
+});
 
 /// Global sender for safety signals.
-static SIGNAL_TX: OnceLock<Sender<SafetySignal>> = OnceLock::new();
+static SIGNAL_TX: Mutex<Option<Sender<SafetySignal>>> = Mutex::new(None);
 
 /// Initialize the keyboard hook globals.
 ///
 /// Must be called before installing the keyboard hook.
 pub(crate) fn init_keyboard_state(lock_mode: LockMode, signal_tx: Sender<SafetySignal>) {
-    let _ = LOCK_MODE.set(Mutex::new(lock_mode));
-    let _ = SIGNAL_TX.set(signal_tx);
+    if let Ok(mut guard) = LOCK_MODE.lock() {
+        *guard = lock_mode;
+    }
+    if let Ok(mut guard) = SIGNAL_TX.lock() {
+        *guard = Some(signal_tx);
+    }
 }
 
 /// Update the current lock mode (called when the lock state changes).
 pub(crate) fn update_lock_mode(mode: LockMode) {
-    if let Some(m) = LOCK_MODE.get() {
-        if let Ok(mut guard) = m.lock() {
-            *guard = mode;
-        }
+    if let Ok(mut guard) = LOCK_MODE.lock() {
+        *guard = mode;
     }
 }
 
@@ -92,8 +99,10 @@ pub(crate) unsafe extern "system" fn keyboard_hook_callback(
 
                 if ctrl_held && alt_held {
                     trace!("Uncloak triggered via keyboard hook (Ctrl+Alt+U)");
-                    if let Some(tx) = SIGNAL_TX.get() {
-                        let _ = tx.send(SafetySignal::EmergencyUnlock);
+                    if let Ok(guard) = SIGNAL_TX.lock() {
+                        if let Some(ref tx) = *guard {
+                            let _ = tx.send(SafetySignal::EmergencyUnlock);
+                        }
                     }
                     return pass_through(n_code, w_param, l_param);
                 }
@@ -102,8 +111,7 @@ pub(crate) unsafe extern "system" fn keyboard_hook_callback(
     }
 
     let keyboard_blocked = LOCK_MODE
-        .get()
-        .and_then(|m| m.lock().ok())
+        .lock()
         .map(|m| m.keyboard_blocked)
         .unwrap_or(false);
 

@@ -438,6 +438,9 @@ impl App {
             )
             .map_err(|e| CliError::Overlay(e))?;
 
+        // Minimize the console window while locked
+        minimize_console();
+
         self.screen = Screen::LockActive;
         info!("Timed lock started: {:?}", duration);
         Ok(())

@@ -49,6 +49,8 @@ impl OverlayManager {
 
         #[cfg(target_os = "windows")]
         {
+            window::set_overlay_state(state.clone());
+            window::set_overlay_mode(self.mode.clone());
             if !self.active {
                 unsafe {
                     window::create_overlay_window(centered, signal_tx)?;
@@ -76,7 +78,11 @@ impl OverlayManager {
         let text = build_status_text(state, timer_display);
 
         #[cfg(target_os = "windows")]
-        window::update_overlay_text(&text);
+        {
+            window::set_overlay_state(state.clone());
+            window::set_overlay_mode(self.mode.clone());
+            window::update_overlay_text(&text);
+        }
 
         #[cfg(not(target_os = "windows"))]
         tracing::debug!("Overlay update (stub): {}", text);
@@ -118,12 +124,9 @@ fn build_status_text(state: &LockState, timer_display: Option<&str>) -> String {
     };
 
     if let Some(timer) = timer_display {
-        format!(
-            "{} — {} remaining  |  CTRL+ALT+SHIFT to unlock",
-            base, timer
-        )
+        format!("{} — {} remaining", base, timer)
     } else {
-        format!("{}  |  CTRL+ALT+SHIFT (hold 2s) to unlock", base)
+        base.to_string()
     }
 }
 
@@ -141,7 +144,6 @@ mod tests {
     fn build_status_text_keyboard_locked() {
         let text = build_status_text(&LockState::KeyboardLocked, None);
         assert!(text.contains("Keyboard Locked"));
-        assert!(text.contains("CTRL+ALT+SHIFT"));
     }
 
     #[test]

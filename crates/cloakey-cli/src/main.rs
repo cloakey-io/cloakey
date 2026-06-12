@@ -10,7 +10,6 @@ mod app;
 mod commands;
 mod error;
 mod lock_screen;
-mod logo_data;
 mod menu;
 mod settings_menu;
 mod startup;
