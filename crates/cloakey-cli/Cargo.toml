@@ -1,0 +1,36 @@
+[package]
+name = "cloakey-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CloaKey CLI — interactive terminal UI and command-line interface"
+
+[[bin]]
+name = "cloak"
+path = "src/main.rs"
+
+[[bin]]
+name = "cloakey"
+path = "src/main.rs"
+
+[dependencies]
+cloakey-settings = { workspace = true }
+cloakey-core     = { workspace = true }
+cloakey-input    = { workspace = true }
+cloakey-overlay  = { workspace = true }
+clap      = { workspace = true }
+ratatui   = { workspace = true }
+crossterm = { workspace = true }
+tracing   = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+crossbeam-channel = { workspace = true }
+dirs = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { workspace = true }
+
+[build-dependencies]
+winres = { workspace = true }

@@ -1,0 +1,13 @@
+[package]
+name = "cloakey-installer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CloaKey Windows Installer and Uninstaller Utility"
+
+[dependencies]
+anyhow = { workspace = true }
+dirs = { workspace = true }
+
+[build-dependencies]
+winres = { workspace = true }

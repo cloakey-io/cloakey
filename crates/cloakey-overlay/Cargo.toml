@@ -1,0 +1,17 @@
+[package]
+name = "cloakey-overlay"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CloaKey overlay — transparent always-on-top status window"
+
+[dependencies]
+cloakey-core     = { workspace = true }
+cloakey-settings = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+crossbeam-channel = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { workspace = true }

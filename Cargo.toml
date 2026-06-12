@@ -1,0 +1,79 @@
+[workspace]
+members = [
+    "crates/cloakey-settings",
+    "crates/cloakey-core",
+    "crates/cloakey-input",
+    "crates/cloakey-overlay",
+    "crates/cloakey-cli",
+    "crates/cloakey-installer",
+    "crates/cloakey-tray",
+]
+resolver = "2"
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+authors = ["CloaKey <hello@cloakey.io>"]
+license = "MIT"
+repository = "https://github.com/cloakey/cloakey"
+homepage = "https://cloakey.io"
+description = "Protect the workflow. Don't stop the workflow."
+keywords = ["workflow", "keyboard", "lock", "protection", "productivity"]
+categories = ["command-line-utilities"]
+
+[workspace.dependencies]
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+# Logging / tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI
+clap = { version = "4", features = ["derive", "color"] }
+
+# Terminal UI
+ratatui = "0.29"
+crossterm = "0.28"
+
+# Async / concurrency
+crossbeam-channel = "0.5"
+
+# Platform path resolution
+dirs = "5"
+
+# Windows API
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_Graphics_Gdi",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_System_Console",
+    "Win32_UI_Shell",
+] }
+
+# Windows tray and hotkeys
+tray-icon = "0.19"
+muda = "0.15"
+global-hotkey = "0.6"
+image = "0.25"
+winres = "0.1"
+
+# Internal crates
+cloakey-settings = { path = "crates/cloakey-settings" }
+cloakey-core     = { path = "crates/cloakey-core" }
+cloakey-input    = { path = "crates/cloakey-input" }
+cloakey-overlay  = { path = "crates/cloakey-overlay" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

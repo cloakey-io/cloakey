@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>CloaKey — Protect the workflow. Don't stop the workflow.</title>
+  <meta name="description" content="CloaKey is a lightweight desktop workflow protection utility that temporarily suppresses keyboard and mouse interaction while keeping applications, terminals, and AI agents running.">
+  <meta name="keywords" content="keyboard lock, mouse lock, input protection, workflow safety, developer productivity, cat keyboard protection">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cloakey.io/">
+  <meta property="og:title" content="CloaKey — Protect the workflow. Don't stop the workflow.">
+  <meta property="og:description" content="Lock keyboard and mouse input without interrupting active processes, downloads, or AI coding agents.">
+  <meta property="og:image" content="../assets/cloakey_banner.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://cloakey.io/">
+  <meta property="twitter:title" content="CloaKey — Protect the workflow. Don't stop the workflow.">
+  <meta property="twitter:description" content="Lock keyboard and mouse input without interrupting active processes, downloads, or AI coding agents.">
+  <meta property="twitter:image" content="../assets/cloakey_banner.png">
+
+  <!-- Google Fonts (Inter & JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS custom properties / Design Tokens */
+    :root {
+      --bg-dark: #09090b;
+      --bg-card: rgba(20, 20, 25, 0.7);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --primary: #6366f1; /* Indigo */
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.15);
+      --accent-glow: rgba(236, 72, 153, 0.15);
+      --pink: #ec4899;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --text-dark: #71717a;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Ambient background glow grids */
+    .ambient-glows {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 900px;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .glow-1 {
+      position: absolute;
+      top: -10%;
+      left: 20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      animation: pulse 8s infinite alternate;
+    }
+
+    .glow-2 {
+      position: absolute;
+      top: 25%;
+      right: 15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      animation: pulse 12s infinite alternate-reverse;
+    }
+
+    @keyframes pulse {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(30px) scale(1.1); }
+    }
+
+    /* Header / Navbar */
+    header {
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background-color: rgba(9, 9, 11, 0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--pink));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-size: 0.95rem;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+      align-items: center;
+      list-style: none;
+    }
+
+    .nav-link a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link a:hover {
+      color: var(--text-main);
+    }
+
+    .btn-github {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-github:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Hero Area */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 4rem;
+        gap: 3rem;
+        text-align: center;
+      }
+    }
+
+    .hero-tagline {
+      display: inline-block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #a5b4fc, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      margin-bottom: 2.5rem;
+      max-width: 550px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-desc {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    /* Installer Copy Snippet */
+    .install-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      max-width: 100%;
+    }
+
+    .install-command {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-copy:hover {
+      color: var(--text-main);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .hero-buttons {
+        justify-content: center;
+      }
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      padding: 0.85rem 1.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.85rem 1.75rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Terminal Simulator Dashboard */
+    .dashboard-preview {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 40px var(--primary-glow);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .terminal-titlebar {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .terminal-title {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .terminal-content {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      min-height: 280px;
+      background: #0b0b0f;
+    }
+
+    .prompt-line {
+      color: var(--text-dark);
+      margin-bottom: 0.75rem;
+    }
+
+    .prompt-line span {
+      color: var(--success);
+    }
+
+    .terminal-display {
+      color: #38bdf8;
+      white-space: pre-wrap;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .interactive-triggers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-color);
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .trigger-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .trigger-btn:hover, .trigger-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Core Comparison Section */
+    .features-section {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 2rem;
+    }
+
+    .section-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .grid-compare {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-compare {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-compare {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card-compare:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .compare-header {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tag-no { color: #f87171; }
+    .tag-yes { color: var(--success); }
+
+    .compare-body {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .compare-body li {
+      margin-bottom: 0.5rem;
+      list-style-type: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* trust & privacy grid */
+    .trust-section {
+      background: radial-gradient(circle at bottom, rgba(99, 102, 241, 0.05) 0%, transparent 80%);
+      padding: 6rem 2rem;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .trust-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 800px) {
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .trust-card {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+    }
+
+    .trust-card-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .trust-card-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .trust-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 4rem 2rem;
+      background: #050508;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-text {
+      color: var(--text-dark);
+      font-size: 0.85rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-link a {
+      color: var(--text-dark);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-link a:hover {
+      color: var(--text-main);
+    }
+
+    /* Success indicator style for copying */
+    .copied-msg {
+      color: var(--success);
+      font-size: 0.8rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow Backgrounds -->
+  <div class="ambient-glows">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo-wrapper">
+        <div class="logo-icon">C</div>
+        <span class="logo-text">CloaKey</span>
+      </a>
+      <ul class="nav-links">
+        <li class="nav-link"><a href="#features">Features</a></li>
+        <li class="nav-link"><a href="#trust">Trust & Security</a></li>
+        <li class="nav-link"><a href="https://github.com/cloakey/cloakey/blob/main/Docs/Project%20blueprint.md">Architecture</a></li>
+        <li class="nav-link"><a href="https://github.com/cloakey/cloakey/blob/main/Docs/CLI%20spec.md">CLI Docs</a></li>
+        <li>
+          <a href="https://github.com/cloakey/cloakey" class="btn-github">
+            <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div>
+      <span class="hero-tagline">Utility MVP v1.0</span>
+      <h1 class="hero-title">Protect the workflow.<br><span>Don't stop the workflow.</span></h1>
+      <p class="hero-desc">
+        A lightweight desktop workflow protection tool. Temporarily suppress keyboard and mouse click interaction while allowing your applications, compilers, render jobs, and AI agents to continue running normally.
+      </p>
+      
+      <div class="install-box">
+        <span class="install-command">winget install cloakey</span>
+        <button class="btn-copy" id="copy-btn" title="Copy command">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+        <span class="copied-msg" id="copied-badge">Copied!</span>
+      </div>
+
+      <div class="hero-buttons">
+        <a href="https://github.com/cloakey/cloakey/releases" class="btn-primary">Download Installer</a>
+        <a href="https://github.com/cloakey/cloakey" class="btn-secondary">View Source Code</a>
+      </div>
+    </div>
+
+    <!-- Interactive Simulator -->
+    <div>
+      <div class="dashboard-preview">
+        <div class="terminal-titlebar">
+          <div class="terminal-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <span class="terminal-title">cloakey-terminal-simulator</span>
+          <span></span>
+        </div>
+        <div class="terminal-content">
+          <div class="prompt-line">C:\Users\Developer> <span>cloak</span></div>
+          <div class="terminal-display" id="terminal-screen">=========================================
+           CloaKey v1.0
+    Workflow Protection System
+=========================================
+
+1. Lock Keyboard           [Mouse Active]
+2. Lock Mouse              [Keyboard Active]
+3. Lock Keyboard & Mouse   [Full Protection]
+4. Ghost Mode              [Move cursor, No clicks]
+5. Timed Lock              [Auto-unlock after time]
+6. Settings                [Shortcuts, Overlays]
+7. Help                    [List commands]
+8. About                   [Version & license]
+
+Q. Exit
+
+Select option: </div>
+        </div>
+        <div class="interactive-triggers">
+          <button class="trigger-btn active" onclick="runSim('menu')">Interactive Menu</button>
+          <button class="trigger-btn" onclick="runSim('keyboard')">cloak keyboard</button>
+          <button class="trigger-btn" onclick="runSim('mouse')">cloak mouse</button>
+          <button class="trigger-btn" onclick="runSim('lock')">cloak lock</button>
+          <button class="trigger-btn" onclick="runSim('ghost')">cloak ghost</button>
+          <button class="trigger-btn" onclick="runSim('timer')">cloak timer 5m</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="features-section" id="features">
+    <h2 class="section-title">A New Category of Protection</h2>
+    <div class="grid-compare">
+      
+      <!-- Card 1: Interactive -->
+      <div class="card-compare">
+        <div class="compare-header">
+          <span class="tag-no">⚡</span> Fully Interactive
+        </div>
+        <div class="compare-body">
+          <ul>
+            <li>❌ 0% Accident Protection</li>
+            <li>❌ Pet/Child interference risk</li>
+            <li>❌ Keyboard slip-up hazard</li>
+            <li>✅ Full screen visibility</li>
+            <li>✅ Tasks execute normally</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 2: Locked -->
+      <div class="card-compare">
+        <div class="compare-header">
+          <span class="tag-no">🔒</span> Locked Screen (Win+L)
+        </div>
+        <div class="compare-body">
+          <ul>
+            <li>✅ 100% Accident Protection</li>
+            <li>❌ Screen goes black/invisible</li>
+            <li>❌ Lose active visual oversight</li>
+            <li>❌ AI agents/compilers may pause</li>
+            <li>❌ Relies on full login to restore</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 3: CloaKey -->
+      <div class="card-compare" style="border-color: var(--primary); background: rgba(99, 102, 241, 0.03);">
+        <div class="compare-header">
+          <span class="tag-yes">🛡️</span> CloaKey Protected
+        </div>
+        <div class="compare-body">
+          <ul>
+            <li>✅ 100% Accident Protection</li>
+            <li>✅ Full screen remains visible</li>
+            <li>✅ Monitor coding & render runs</li>
+            <li>✅ Zero background interrupts</li>
+            <li>✅ Instant physical override shortcut</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section" id="trust">
+    <div class="trust-container">
+      <h2 class="section-title">Built Around Absolute Trust</h2>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-card-icon">👁️</div>
+          <div class="trust-card-title">Zero Logs</div>
+          <div class="trust-card-desc">No keystroke recording, database tracking, or input history retention.</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-icon">📶</div>
+          <div class="trust-card-title">Offline Native</div>
+          <div class="trust-card-desc">Operates entirely locally. Does not require internet connectivity.</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-icon">🦀</div>
+          <div class="trust-card-title">Pure Rust</div>
+          <div class="trust-card-desc">Written in safe Rust for low-level hook control and minimal CPU usage.</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-card-icon">🚨</div>
+          <div class="trust-card-title">Safety Bypass</div>
+          <div class="trust-card-desc">Physical escape shortcut (Ctrl+Alt+Shift) overrides all locks instantly.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="logo-wrapper">
+        <div class="logo-icon">C</div>
+        <span class="logo-text">CloaKey</span>
+      </div>
+      <div class="footer-text">
+        © 2026 CloaKey Project. Licensed under BSL 1.1 (transitions to Apache 2.0 in 2029).
+      </div>
+      <ul class="footer-links">
+        <li class="footer-link"><a href="https://github.com/cloakey/cloakey">GitHub</a></li>
+        <li class="footer-link"><a href="https://github.com/cloakey/cloakey/blob/main/LICENSE">License</a></li>
+        <li class="footer-link"><a href="https://github.com/cloakey/cloakey/blob/main/ROADMAP.md">Roadmap</a></li>
+        <li class="footer-link"><a href="mailto:hello@cloakey.io">Support</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // Copy Command Functionality
+    const copyBtn = document.getElementById('copy-btn');
+    const badge = document.getElementById('copied-badge');
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText('winget install cloakey');
+      badge.style.opacity = '1';
+      setTimeout(() => {
+        badge.style.opacity = '0';
+      }, 2000);
+    });
+
+    // Terminal Simulator Logic
+    const screens = {
+      menu: `=========================================
+           CloaKey v1.0
+    Workflow Protection System
+=========================================
+
+1. Lock Keyboard           [Mouse Active]
+2. Lock Mouse              [Keyboard Active]
+3. Lock Keyboard & Mouse   [Full Protection]
+4. Ghost Mode              [Move cursor, No clicks]
+5. Timed Lock              [Auto-unlock after time]
+6. Settings                [Shortcuts, Overlays]
+7. Help                    [List commands]
+8. About                   [Version & license]
+
+Q. Exit
+
+Select option: `,
+      keyboard: `C:\\Users\\Developer> cloak keyboard
+
+Keyboard Lock Enabled
+
+Keyboard Input: BLOCKED
+Mouse Input: ALLOWED
+
+Unlock:
+Hold CTRL + ALT + SHIFT for 2 seconds`,
+      mouse: `C:\\Users\\Developer> cloak mouse
+
+Mouse Lock Enabled
+
+Mouse Input: BLOCKED
+Keyboard Input: ALLOWED
+
+Unlock:
+Hold CTRL + ALT + SHIFT for 2 seconds`,
+      lock: `C:\\Users\\Developer> cloak lock
+
+Full Protection Enabled
+
+Keyboard Input: BLOCKED
+Mouse Input: BLOCKED
+
+Unlock:
+Hold CTRL + ALT + SHIFT for 2 seconds`,
+      ghost: `C:\\Users\\Developer> cloak ghost
+
+Ghost Mode Enabled
+
+Mouse Movement: ALLOWED
+Mouse Clicks: BLOCKED
+Keyboard Input: BLOCKED
+
+Unlock:
+Hold CTRL + ALT + SHIFT for 2 seconds`,
+      timer: `C:\\Users\\Developer> cloak timer 5m
+
+Timed Protection Enabled
+Duration: 5 minutes (300s)
+
+[Remaining: 299s]
+
+Unlock:
+Hold CTRL + ALT + SHIFT or wait for time to expire`
+    };
+
+    function runSim(mode) {
+      // Update screen text
+      const screenEl = document.getElementById('terminal-screen');
+      screenEl.textContent = screens[mode];
+      
+      // Update active button state
+      const buttons = document.querySelectorAll('.trigger-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // Find triggering element and add active class
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>

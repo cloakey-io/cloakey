@@ -1,0 +1,16 @@
+[package]
+name = "cloakey-input"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CloaKey input engine — Win32 keyboard and mouse hooks"
+
+[dependencies]
+cloakey-core = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+crossbeam-channel = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { workspace = true }

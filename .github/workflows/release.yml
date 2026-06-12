@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build (Windows x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binaries
+        run: cargo build --release --workspace
+
+      - name: Package binaries
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path ./dist
+          Copy-Item ./target/release/cloak.exe ./dist/cloak.exe
+          Copy-Item ./target/release/cloak-tray.exe ./dist/cloak-tray.exe
+          Copy-Item ./target/release/cloakey-installer.exe ./dist/cloakey-installer.exe
+          Compress-Archive -Path ./dist/* -DestinationPath ./cloakey-windows-x64.zip
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloakey-windows-x64
+          path: cloakey-windows-x64.zip
+
+  # FUTURE TARGET: macOS (Commented out until hooks code is implemented)
+  # build-macos:
+  #   name: Build (macOS)
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Install Rust
+  #       uses: dtolnay/rust-toolchain@stable
+  #     - name: Build Release
+  #       run: cargo build --release --workspace
+  #     - name: Package
+  #       run: zip -r cloakey-macos.zip target/release/cloak
+
+  # FUTURE TARGET: Linux (Commented out until hooks code is implemented)
+  # build-linux:
+  #   name: Build (Linux)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Install Rust
+  #       uses: dtolnay/rust-toolchain@stable
+  #     - name: Build Release
+  #       run: cargo build --release --workspace
+  #     - name: Package
+  #       run: tar -czf cloakey-linux.tar.gz -C target/release cloak
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: cloakey-windows-x64
+          path: .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            cloakey-windows-x64.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

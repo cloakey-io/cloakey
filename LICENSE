@@ -1,0 +1,50 @@
+Business Source License 1.1
+
+License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+"Business Source License" is a trademark of MariaDB Corporation Ab.
+
+----------------------------------------------------------------------
+
+Parameters
+
+Licensor:                 CloaKey Project (hello@cloakey.io)
+Licensed Work:            CloaKey (including all crates and binaries under this repository)
+Additional Use Grant:     You may use the Licensed Work for any personal, educational, or
+                          internal business purpose. You may also use the Licensed Work
+                          commercially, provided that you do not:
+                          1. Offer the Licensed Work as a hosted, managed, or Software-as-a-Service (SaaS)
+                             utility.
+                          2. Rebrand, bundle, or distribute the Licensed Work as a proprietary
+                             workflow protection or keyboard/mouse-locking product.
+Change Date:              June 12, 2029
+Change License:           Apache License, Version 2.0, as published by the Apache Software Foundation
+
+
+Terms of the Business Source License
+
+1. The Licensor hereby grants you the right to copy, modify, create derivative
+   works of, and redistribute the Licensed Work, but solely for the purpose of
+   using the Licensed Work according to the Additional Use Grant and subject
+   to the terms and conditions of this License.
+
+2. On the Change Date, or upon an earlier date designated by the Licensor in
+   writing, this License shall transition to the Change License. On and after
+   such date, you are licensed to make use of the Licensed Work under the terms
+   of the Change License.
+
+3. To the extent that the Licensed Work or any portion thereof contains patent
+   claims owned by the Licensor that are necessary to use the Licensed Work,
+   such patent claims are licensed under terms matching this License, but
+   solely for use of the Licensed Work within the scope of the Additional Use
+   Grant.
+
+4. If you violate the terms of this License, your rights under this License
+   terminate automatically. If your rights are terminated, they are restored
+   only if you cure the violation within 30 days of first becoming aware of it,
+   or if the Licensor grants you written waiver or consent.
+
+5. THE LICENSED WORK IS PROVIDED "AS IS" AND WITHOUT WARRANTIES OR CONDITIONS
+   OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT.
+   IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR LOSS OR DAMAGES IN CONNECTION
+   WITH THIS LICENSE OR THE LICENSED WORK.

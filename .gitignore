@@ -1,0 +1,23 @@
+/target
+Cargo.lock
+*.pdb
+*.exe
+*.dll
+*.lib
+*.exp
+
+# Config files with secrets
+.env
+.env.*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
