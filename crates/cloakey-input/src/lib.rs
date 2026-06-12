@@ -234,12 +234,11 @@ mod engine {
         /// This is called automatically by `Drop`, but can be called explicitly
         /// for a graceful controlled shutdown.
         pub fn stop(&mut self) {
-            if !self.running.load(Ordering::Acquire) {
-                return;
+            if self.stop_flag.swap(true, Ordering::AcqRel) {
+                return; // Already stopped
             }
 
             info!("Stopping input engine");
-            self.stop_flag.store(true, Ordering::Release);
             self.heartbeat.disable();
 
             unsafe {
@@ -260,6 +259,7 @@ mod engine {
                 }
             }
 
+            self.running.store(false, Ordering::Release);
             info!("Input engine stopped");
         }
     }

@@ -50,6 +50,14 @@ pub(crate) fn update_lock_mode(mode: LockMode) {
     }
 }
 
+/// Check if a Virtual Key code is a modifier key (Shift, Control, Alt, Win).
+fn is_modifier_key(vk: u32) -> bool {
+    matches!(
+        vk,
+        0x10 | 0x11 | 0x12 | 0x5B | 0x5C | 0xA0 | 0xA1 | 0xA2 | 0xA3 | 0xA4 | 0xA5
+    )
+}
+
 /// The `WH_KEYBOARD_LL` hook callback.
 ///
 /// # Safety
@@ -64,12 +72,18 @@ pub(crate) unsafe extern "system" fn keyboard_hook_callback(
         return pass_through(n_code, w_param, l_param);
     }
 
-    let msg = w_param.0 as u32;
-    if msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN {
-        let kb_struct = l_param.0 as *const KBDLLHOOKSTRUCT;
-        if !kb_struct.is_null() {
-            let vk = (*kb_struct).vkCode;
-            
+    let kb_struct = l_param.0 as *const KBDLLHOOKSTRUCT;
+    if !kb_struct.is_null() {
+        let vk = (*kb_struct).vkCode;
+
+        // Always pass through modifier keys so Windows keeps its physical key state up-to-date.
+        // This is critical for GetAsyncKeyState to work for CTRL, ALT, and SHIFT.
+        if is_modifier_key(vk) {
+            return pass_through(n_code, w_param, l_param);
+        }
+
+        let msg = w_param.0 as u32;
+        if msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN {
             // Immediate "Uncloak" check: CTRL + ALT + U (0x55 is VK_U)
             if vk == 0x55 {
                 let ctrl_held = (GetAsyncKeyState(VK_CONTROL.0 as i32) as u16 & 0x8000) != 0
@@ -101,6 +115,7 @@ pub(crate) unsafe extern "system" fn keyboard_hook_callback(
     }
 
     // Block keyboard event
+    let msg = w_param.0 as u32;
     if msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN {
         let kb_struct = l_param.0 as *const KBDLLHOOKSTRUCT;
         if !kb_struct.is_null() {

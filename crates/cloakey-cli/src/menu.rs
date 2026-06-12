@@ -148,10 +148,12 @@ pub fn draw_main_menu(
             Style::default().fg(Color::DarkGray),
         )),
         Line::from(""),
-        Line::from(Span::styled(
-            "  Emergency Unlock: CTRL + ALT + SHIFT  (hold 2 seconds)",
-            Style::default().fg(Color::Yellow),
-        )),
+        Line::from(vec![
+            Span::styled("  Emergency: ", Style::default().fg(Color::Yellow)),
+            Span::styled("CTRL + ALT + SHIFT (hold 2s)", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+            Span::styled("  ·  Uncloak: ", Style::default().fg(Color::Cyan)),
+            Span::styled("CTRL + ALT + U", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        ]),
     ];
 
     let header = Paragraph::new(header_text)
@@ -267,6 +269,7 @@ pub fn draw_help_screen(frame: &mut Frame) {
         Line::from("  CTRL + ALT + M           Lock mouse"),
         Line::from("  CTRL + ALT + G           Ghost Mode"),
         Line::from("  CTRL + ALT + SHIFT       Emergency unlock (hold 2 seconds)"),
+        Line::from("  CTRL + ALT + U           Uncloak (immediate unlock)"),
         Line::from(""),
         Line::from(Span::styled("LINKS:", Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
         Line::from("  Website:  https://cloakey.io"),
